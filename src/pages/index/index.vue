@@ -1,9 +1,12 @@
 <template>
 	<view class="content">
-		<image class="logo" src="/static/logo.png"></image>
-		<view>
-			<text class="title">{{title}}</text>
+		<navbar />
+		<view class="main flex flex-wrap justify-content-space-between p-l-20 p-r-20 p-t-40 p-b-40">
+			<view class="item-block m-b-30" v-for="(item, index) in [1,2,3,4,5,6,7,8,9]" :key="index">
+				<item />
+			</view>
 		</view>
+		<tabbar />
 	</view>
 </template>
 
@@ -11,7 +14,7 @@
 	export default {
 		data() {
 			return {
-				title: 'Hello'
+				title: ''
 			}
 		},
 		onLoad() {
@@ -23,27 +26,8 @@
 	}
 </script>
 
-<style>
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.logo {
-		height: 200rpx;
-		width: 200rpx;
-		margin: 200rpx auto 50rpx auto;
-	}
-
-	.text-area {
-		display: flex;
-		justify-content: center;
-	}
-
-	.title {
-		font-size: 36rpx;
-		color: #8f8f94;
-	}
+<style lang="scss" scoped>
+.item-block{
+	width: 345upx;
+}
 </style>

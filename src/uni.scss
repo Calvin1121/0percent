@@ -34,7 +34,7 @@ $uni-bg-color-hover:#f1f1f1;//点击状态颜色
 $uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
 
 /* 边框颜色 */
-$uni-border-color:#c8c7cc;
+$uni-border-color:#e5e5e5;
 
 /* 尺寸变量 */
 
@@ -74,3 +74,184 @@ $uni-color-subtitle: #555555; // 二级标题颜色
 $uni-font-size-subtitle:36rpx;
 $uni-color-paragraph: #3F536E; // 文章段落颜色
 $uni-font-size-paragraph:30rpx;
+
+// utils
+$font-colors:fff,
+6448B5,
+FD3691,
+f1f1f1,
+f8f8f8,
+342369,
+999;
+
+@each $item in $font-colors {
+    .color-#{$item} {
+        color: #{'#' + $item};
+    }
+    .bg-#{$item} {
+        background: #{'#' + $item};
+    }
+}
+$gaps: 0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 50, 60;
+@each $item in $gaps{
+	@if($item == 10 or $item == 15 or $item == 30){
+		.p-#{$item}{
+			padding: #{$item}rpx;
+		}
+	}
+	@if($item == 0){
+		.p-#{$item}{
+			padding: #{$item}rpx !important;
+		}
+	}
+	.p-l-#{$item}
+	{
+		padding-left: #{$item}rpx;
+	};
+	.p-r-#{$item}
+	{
+		padding-right:#{$item}rpx;
+	};
+	.p-t-#{$item}
+	{
+		padding-top:#{$item}rpx;
+	};
+	.p-b-#{$item}
+	{
+		padding-bottom:#{$item}rpx;
+	};
+	.m-l-#{$item}
+	{
+		margin-left: #{$item}rpx;
+	};
+	.m-r-#{$item}
+	{
+		margin-right:#{$item}rpx;
+	};
+	.m-t-#{$item}
+	{
+		margin-top:#{$item}rpx;
+	};
+	.m-b-#{$item}
+	{
+		margin-bottom:#{$item}rpx;
+	};
+}
+/* 文字尺寸 */
+@for $i from 20 through 60 {
+    .font#{$i} {
+        font-size: #{$i}upx;
+    }
+}
+$font-weights:3,4,5,6,7,8;
+@each $item in $font-weights{
+	.fw-#{$item}
+	{
+		font-weight: #{ $item * 100};
+	}
+}
+/* flex */
+$flexs:1,2,3,4,5;
+$flexs-percent:25,33,50;
+$directions: row , row-reverse , column , column-reverse;
+$wraps: nowrap, wrap, wrap-reverse;
+$justifies:flex-start , flex-end , center , space-between , space-around;
+$aligns:flex-start , flex-end , center , space-between , space-around , stretch;
+$align-items:flex-start , flex-end , center , baseline , stretch;
+$align-self:auto , flex-start , flex-end , center , baseline , stretch;
+$line-clamps:1,2,3,4;
+$positions: relative, absolute, fixed, sticky;
+.flex {
+	display: flex;
+}
+@each $item in $flexs{
+	.flex-#{$item}
+	{
+		flex: #{$item};
+	}
+}
+@each $item in $flexs-percent{
+	.flex-#{$item}
+	{
+		flex: #{$item + '%'};
+	}
+}
+@each $item in $directions{
+	.flex-#{$item}
+	{
+		flex-direction: #{$item};
+	}
+}
+@each $item in $wraps{
+	.flex-#{$item}
+	{
+		flex-wrap: #{$item};
+	}
+}
+@each $item in $justifies{
+	.justify-content-#{$item}
+	{
+		justify-content: #{$item};
+	}
+}
+@each $item in $align-items{
+	.align-items-#{$item}
+	{
+		align-items: #{$item};
+	}
+}
+@each $item in $aligns{
+	.align-content-#{$item}
+	{
+		align-content: #{$item};
+	}
+}
+@each $item in $align-self{
+	.align-self-#{$item}
+	{
+		align-self: #{$item};
+	}
+}
+/* text align */
+$text-aligns: left, right, center;
+@each $item in $text-aligns{
+	.text-#{$item}
+	{
+		text-align: #{$item};
+	}
+}
+/* line clamp */
+@each $item in $line-clamps{
+	.line-clamp-#{$item}
+	{
+		overflow:hidden;
+		display:-webkit-box; 
+		text-overflow:ellipsis;
+		-webkit-line-clamp: #{$item}; 
+		-webkit-box-orient:vertical;
+		white-space:normal;
+	}
+}
+@each $item in $positions{
+	.#{$item}{
+		position: #{$item};
+	}
+}
+image{
+	vertical-align: middle;
+}
+view,scroll-view,swiper,swiper-item,navigator{
+	box-sizing: border-box;
+}
+.border-box{
+	box-sizing: border-box;
+}
+.visibility-hidden{
+	visibility: hidden;
+}
+.ipx-holder{
+	height: 34upx;
+}
+.overflow-hidden{
+	overflow: hidden;
+}
