@@ -10,6 +10,11 @@
             "style":
             {}
         },
+         {
+            "path": "pages/search/result",
+            "style":
+            {}
+        },
         {
             "path": "pages/detail/index",
             "style":
@@ -18,12 +23,16 @@
         {
             "path": "pages/detail/poster",
             "style":
-            {}
+            {
+                "disableScroll":true
+            }
         },
         {
             "path": "pages/login/index",
             "style":
-            {}
+            {
+                "disableScroll":true
+            }
         }
     ],
     "globalStyle":

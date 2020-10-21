@@ -38,9 +38,9 @@ export default {
             type: String,
             default: '#6448B5'
         },
-        delta:{
-            type:Number,
-            default:1
+        delta: {
+            type: Number,
+            default: 1
         }
     },
     created() {
@@ -52,12 +52,13 @@ export default {
             this.status = statusBarHeight;
             this.navbar = system.match(/ios/gi) ? 44 : 48;
             this.canBack = !(pages[pages.length - 1] || {}).route.match(/pages\/index\/index/gi);
+            console.log(this.canBack)
             this.setNavbar(this.navbar)
         },
-        tapBack(){
+        tapBack() {
             let { canBack, delta } = this, pages = getCurrentPages();
-            if(pages.length == 1 && canBack) uni.reLaunch({url:'/pages/index/index'})
-            if(pages.length > 1 && canBack) uni.navigateBack({delta})
+            if (pages.length == 1 && canBack) uni.reLaunch({ url: '/pages/index/index' })
+            if (pages.length > 1 && canBack) uni.navigateBack({ delta })
         },
         ...mapMutations(['setNavbar'])
     }
@@ -85,6 +86,7 @@ export default {
 
     .title {
         flex: 1;
+
         .logo-icon {
             width: 80upx;
         }

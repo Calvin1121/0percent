@@ -12,12 +12,13 @@
                 </view>
             </view>
             <view class="items flex align-items-center flex-wrap">
-            	<view class="item color-342369 font28 p-t-5 p-b-5 p-l-15 p-r-15 bg-f1f1f1 m-r-30 m-t-30" v-for="(item, index) in history" :key="index">{{item}}</view>
+            	<view class="item color-342369 font28 p-t-5 p-b-5 p-l-15 p-r-15 bg-f1f1f1 m-r-30 m-t-30" v-for="(item, index) in history" :key="index" @tap="tapHisItem(item)">{{item}}</view>
             </view>
         </view>
     </view>
 </template>
 <script>
+import { mapMutations } from 'vuex';
 export default {
     name: 'search',
     data(){
@@ -26,9 +27,16 @@ export default {
     	}
     },
     methods:{
+        ...mapMutations(['setSearch']),
     	clearHistory(){
     		this.history = []
-    	}
+    	},
+        tapHisItem(keywords){
+            this.setSearch({keywords, type: 'confirm'})
+        }
+    },
+    onUnload(){
+        this.setSearch()
     }
 }
 </script>

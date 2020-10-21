@@ -1,25 +1,92 @@
 <template>
     <view class="flex block flex-column">
         <navbar />
-        <view class="poster-block flex-1 flex flex-column align-items-center justify-content-center">
-            <view class="poster">
-                <canvas id="poster" canvas-id="poster"></canvas>
+        <view class="poster-block flex-1 flex flex-column align-items-center">
+            <view class="poster m-t-30">
+                <canvas id="poster" canvas-id="poster" v-if="!poster"></canvas>
+                <image :src="poster" mode="widthFix" @tap="preView" v-else></image>
             </view>
-            <view class="save font30 color-fff flex align-items-center justify-content-center m-t-25">保存图片</view>
+            <view class="save font30 color-fff flex align-items-center justify-content-center m-t-25" @tap="savePoster">保存图片</view>
         </view>
     </view>
 </template>
 <script>
 const img = '../../static/img.png'
 const code = '../../static/avatar.png'
+const line = '../../static/line.png'
 export default {
     name: 'poster',
+    data() {
+        return {
+            poster: ''
+        }
+    },
     created() {
-        this.draw()
+        this.$nextTick(() => {
+            this.draw()
+        })
     },
     methods: {
+        preView() {
+            let current = this.poster;
+            uni.previewImage({
+                current,
+                urls: [current]
+            })
+        },
+        needAuth() {
+            return new Promise(resolve => {
+                uni.authorize({
+                    scope: 'scope.writePhotosAlbum',
+                    success: scope => {
+                        resolve(true)
+                    },
+                    fail: async fail => {
+                        let res = await this.getAuthByManual();
+                        resolve(res)
+                    }
+                })
+            })
+        },
+        getAuthByManual() {
+            return new Promise(resolve => {
+                uni.showModal({
+                    title: '授权',
+                    content: '需要您的授权并保存图片到系统相册',
+                    showCancel: false,
+                    success: modal => {
+                        if (modal.confirm) {
+                            uni.openSetting({
+                                complete: open_setting => {
+                                    resolve(!!open_setting.authSetting['scope.writePhotosAlbum'])
+                                }
+                            })
+                        }
+                    }
+                })
+            })
+        },
+        async savePoster() {
+            let res = await this.needAuth()
+            if (res) {
+                uni.saveImageToPhotosAlbum({
+                    filePath: this.poster,
+                    success: success => {
+                        uni.showToast({
+                            title: '保存成功'
+                        })
+                    },
+                    fail: fail => {
+                        uni.showToast({
+                            title: '保存失败',
+                            icon: 'none'
+                        })
+                    }
+                })
+            }
+        },
         draw() {
-            let ctx = wx.createCanvasContext("poster");
+            let ctx = uni.createCanvasContext("poster");
             ctx.setFillStyle("#ffffff")
             ctx.rect(0, 0, uni.upx2px(664), uni.upx2px(1030))
             ctx.fill()
@@ -37,11 +104,28 @@ export default {
             ctx.fillText('长按识别小程序', uni.upx2px(36), uni.upx2px(860));
             ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
             ctx.fillText('好货要和朋友一起分享', uni.upx2px(36), uni.upx2px(920));
-            ctx.setStrokeStyle('#000000');
+            ctx.beginPath()
+            ctx.setStrokeStyle('#cccccc');
             ctx.setLineWidth(uni.upx2px(2));
+            ctx.moveTo(0, uni.upx2px(720))
+            ctx.lineTo(uni.upx2px(664), uni.upx2px(720))
+            ctx.setLineDash([2, 4])
+            ctx.stroke()
+            ctx.beginPath()
             ctx.arc(uni.upx2px(516), uni.upx2px(872), uni.upx2px(96), 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.draw()
+            ctx.clip();
+            ctx.drawImage(code, uni.upx2px(420), uni.upx2px(776), uni.upx2px(192), uni.upx2px(192));
+            ctx.draw(true, () => {
+                this.$nextTick(() => {
+                    uni.canvasToTempFilePath({
+                        canvasId: "poster",
+                        success: res => {
+                            let { tempFilePath } = res;
+                            this.poster = tempFilePath || ''
+                        }
+                    })
+                })
+            })
         }
     }
 }
@@ -60,6 +144,10 @@ export default {
     background: #fff;
     overflow: hidden;
     box-shadow: 0upx 0upx 10upx 4upx #CCCCCC;
+
+    image {
+        width: 100%;
+    }
 }
 
 #poster {

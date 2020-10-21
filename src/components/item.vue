@@ -10,15 +10,15 @@
 				</view>
 			</view>
 			<view class="progress-block p-l-20 p-r-20">
-				<view class="progress-bar flex align-items-center relative bg-f1f1f1">
-					<view class="dot absolute bg-FD3691"></view>
-				</view>
+				<dc-slider value="90" disabled />
 			</view>
 		</view>
 	</navigator>
 </template>
 <script>
+import dcSlider from '@/components/dc-slider.vue';
 export default{
+	components:{dcSlider},
 	name:'item',
 }
 </script>
@@ -35,21 +35,6 @@ export default{
 		border-radius: 50upx;
 		padding: 0upx 10upx;
 		min-width: 70upx;
-	}
-	.progress{
-		height: 15upx;
-		&-bar{
-			width: 100%;
-			height: 5upx;
-			.dot{
-				width: 15upx;
-				height: 15upx;
-				border-radius: 50%;
-				top: 50%;
-				left: 0;
-				transform:translate(-50%,-50%)
-			}
-		}
 	}
 }
 </style>

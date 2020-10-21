@@ -18,7 +18,7 @@ const store = new Vuex.Store({
         tabbar: 0,
         search: {
             type: '',
-            value: ''
+            keywords: ''
         },
         isAll:true
     },
@@ -41,7 +41,7 @@ const store = new Vuex.Store({
         },
         setSearch(state, search = {
             type: '',
-            value: ''
+            keywords: ''
         }) {
             state.search = search
         },
