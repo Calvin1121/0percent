@@ -1,29 +1,29 @@
 <template>
-    <view class="detail">
+    <view class="detail" v-if="data.id">
         <navbar />
-        <view class="banner relative">
-            <view class="indicators bg-999 color-fff font24 absolute" v-if="banner.length">{{current+1}}/{{banner.length}}</view>
+        <view class="banner relative" v-if="data.imgInfo.length">
+            <view class="indicators bg-999 color-fff font24 absolute">{{current+1}}/{{data.imgInfo.length}}</view>
             <swiper autoplay circular @change="swiperChange($event, 'current')">
-                <swiper-item v-for="(item, index) in banner" :key="index">
-                    <image src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1618917910,1316838749&fm=26&gp=0.jpg" mode="aspectFill"></image>
+                <swiper-item v-for="(item, index) in data.imgInfo" :key="index">
+                    <image class="bg-f1f1f1" :src="item.img" mode="aspectFill"></image>
                 </swiper-item>
             </swiper>
         </view>
         <view class="base-info p-l-20 p-r-20 p-t-20 p-b-20">
             <view class="title share-in flex align-items-center justify-content-space-between">
-                <view class="title color-342369 fw-6 font40">c64</view>
+                <view class="title color-342369 fw-6 font40">{{data.goodName}}</view>
                 <view class="share-in flex align-items-center">
                     <view class="share flex align-items-center justify-content-center p-r-15 p-t-15 p-b-15" @tap="this.type='share';this.backdrop=true">
                         <image src="../../static/fenxiang@2x.png" mode="widthFix"></image>
                     </view>
-                    <view class="in flex align-items-center justify-content-center p-l-15 p-t-15 p-b-15">
-                        <image src="../../static/guanzhu@2x.png" mode="widthFix"></image>
+                    <view class="in flex align-items-center justify-content-center p-l-15 p-t-15 p-b-15" @tap="collectIt">
+                        <image :src="`/static/${data.scNum?'yiguanzhu@2x':'guanzhu@2x'}.png`" mode="widthFix"></image>
                     </view>
                 </view>
             </view>
-            <view class="desc font28 color-342369">crp keycapscrp keycapscrp keycaps</view>
-            <view class="tags flex flex-wrap p-t-20">
-                <view class="tag font24 color-6448B5 m-r-20 m-t-20" v-for="(item, index) in tags" :key="index">{{item}}</view>
+            <view class="desc font28 color-342369">{{data.info||''}}</view>
+            <view class="tags flex flex-wrap p-t-20" v-if="data.itemNames.length">
+                <view class="tag font24 color-6448B5 m-r-20 m-t-20" v-for="(item, index) in data.itemNames" :key="index" @click.stop="filterIt(item, 'itemName')">{{item}}</view>
             </view>
         </view>
         <view class="split bg-f8f8f8"></view>
@@ -32,27 +32,31 @@
                 <view class="row flex align-items-center">
                     <view class="label">品牌</view>
                     <view class="value flex-1 flex align-items-center justify-content-flex-end">
-                        <view class="info-tag">hammerworks</view>
-                        <view class="info-tag">crp keycaps</view>
+                        <block v-for="(item, index) in data.keyWordNames" :key="index">
+                            <view class="info-tag" @click.stop="filterIt(item, 'keyWordName')">{{item}}</view>
+                        </block>
                     </view>
                 </view>
                 <view class="row flex align-items-center">
                     <view class="label">设计</view>
                     <view class="value flex-1 flex align-items-center justify-content-flex-end">
-                        <view class="info-tag pink">buger.work</view>
+                        <block v-for="(item, index) in data.desNames" :key="index">
+                            <view class="info-tag pink" @click.stop="filterIt(item, 'designerName')">{{item}}</view>
+                        </block>
+                        <!--  <view class="info-tag pink" @click.stop="filterIt(item, 'keyWordName')">{{data.desNames.join('.')}}</view> -->
                     </view>
                 </view>
                 <view class="row flex align-items-center">
                     <view class="label">预计开团时间</view>
-                    <view class="value flex-1 text-right">2020-8-31——2020-9-23</view>
+                    <view class="value flex-1 text-right">{{data.openTime | dateFormat}}——{{data.closeTime|dateFormat}}</view>
                 </view>
                 <view class="row flex align-items-center">
                     <view class="label">预计发货时间</view>
-                    <view class="value flex-1 text-right">2020-9-31——2020-10-23</view>
+                    <view class="value flex-1 text-right">{{data.closeTime| dateFormat}}——{{data.sendTime|dateFormat}}</view>
                 </view>
                 <view class="row flex align-items-center">
                     <view class="label">开团平台</view>
-                    <view class="value flex-1 text-right">淘宝【BUGER.work】</view>
+                    <view class="value flex-1 text-right">{{data.platformName}}</view>
                 </view>
             </view>
             <view class="toggle-block flex align-items-center justify-content-center">
@@ -62,14 +66,20 @@
             </view>
         </view>
         <view class="state-block flex flex-column align-items-center p-t-40 p-l-20 p-r-20">
-            <view class="button ic flex color-fff align-items-center justify-content-center m-b-50">IC</view>
+            <view class="button flex color-fff align-items-center justify-content-center m-b-50" :class="[{'bg-6448B5 font32':!data.goodStatus.match(/ic/gi),'bg-FD3691 font36':data.goodStatus.match(/ic/gi)}]" @click.stop="handler()">{{data.goodStatus.match(/gb/gi)?'购买链接':data.goodStatus}}</view>
             <view class="states">
-                <block v-for="(item, index) in [1,2,3]" :key="index">
-                    <view class="state m-b-20 flex" @tap="this.type='state';this.backdrop=true">
-                        <image class="m-r-15" src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1618917910,1316838749&fm=26&gp=0.jpg" mode="aspectFill"></image>
+                <block v-for="(item, index) in progress" :key="index">
+                    <view class="state m-b-20 flex" @tap="this.type='state';this.backdrop=true;this.item = item">
+                        <block v-for="(item, index) in item.imgInfo" :key="index">
+                            <view class="relative" v-if="!index">
+                                <image class="icon absolute" src="/static/play.png"></image>
+                                <image class="m-r-15 bg-f1f1f1" :src="item.url" mode="aspectFill" v-if="item.type=='img'"></image>
+                                <video object-fit="fill" :poster="data.showImgInfo[0].img||''" :show-center-play-btn="false" :controls="false" class="m-r-15" :src="item.url" v-if="item.type=='video'"></video>
+                            </view>
+                        </block>
                         <view class="main">
-                            <view class="title font36 fw-5 color-342369 bg-f1f1f1 line-clamp-1">开车中</view>
-                            <view class="desc m-t-10 font24 color-342369">由YORK设计，0.01代工的原厂二色注塑键帽。</view>
+                            <view class="title font36 fw-5 color-342369 line-clamp-1" :class="[{'bg-f1f1f1 color-342369':index < progress.length-1,'bg-6448B5 color-27F2C6':index == progress.length-1}]">{{item.speedTitle}}</view>
+                            <view class="desc m-t-10 font24 color-342369">{{item.speedInfo}}</view>
                         </view>
                     </view>
                 </block>
@@ -85,19 +95,25 @@
                     </view>
                 </view>
                 <view class="state-swiper relative m-t-25">
-                    <view class="indicators bg-999 color-fff font24 absolute" v-if="banner.length">{{stateIndex+1}}/{{banner.length}}</view>
-                    <swiper autoplay circular @change="swiperChange($event, 'stateIndex')">
-                        <swiper-item v-for="(item, index) in banner" :key="index">
-                            <image src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1618917910,1316838749&fm=26&gp=0.jpg" mode="aspectFill"></image>
+                    <image class="icon absolute" src="/static/play.png" @click.stop="playIt(item.stateIndex||0)" v-if="item.imgInfo[item.stateIndex||0].type == 'video' && !item.imgInfo[item.stateIndex||0].is_play"></image>
+                    <view class="indicators bg-999 color-fff font24 absolute">{{(item.stateIndex||0)+1}}/{{item.imgInfo.length}}</view>
+                    <swiper circular @change="swiperChange($event, 'stateIndex', item)">
+                        <swiper-item v-for="(v, i) in item.imgInfo" :key="i">
+                            <block v-if="v.type == 'img'">
+                                <image class="bg-f1f1f1" :src="v.url" mode="aspectFill"></image>
+                            </block>
+                            <block v-else>
+                                <video @play="videoFun(i,'play')" @pause="videoFun(i,'pause')" @ended="videoFun(i,'end')" :id="`video${i}`" :show-center-play-btn="false" :controls="false" :src="(item.stateIndex||0)==i?v.url:''" class="video"></video>
+                            </block>
                         </swiper-item>
                     </swiper>
                 </view>
-                <view class="date bg-f1f1f1 color-342369 text-center font22 m-t-10">此消息发布于：2020-08-30 07:56</view>
+                <view class="date bg-f1f1f1 color-342369 text-center font22 m-t-10">此消息发布于：{{item.createTime}}</view>
                 <view class="text color-342369 font28 m-t-25">
-                    由于部分模具问题，【东方】需要重新修改。预计2周后改完测试，交货期顺延至9月24日，感谢理解。
+                    {{item.speedInfo}}
                 </view>
             </view>
-            <view class="share-actions bg-fff" :class="{show:backdrop,hide:!backdrop}" v-if="type=='share'" @click.stop>
+            <view class="share-actions bg-fff" :class="{show:backdrop,hide:!backdrop}" v-if="type=='share'" @touchmove.stop.prevent @click.stop>
                 <view class="actions">
                     <button open-type="share" class="font28 color-342369">分享给好友</button>
                     <button @tap="toPoster" class="font28 color-342369">保存图片</button>
@@ -107,74 +123,195 @@
                 <view class="ipx-holder" v-if="isIPX"></view>
             </view>
         </view>
-        <!-- <uni-popup ref="popup" :type="type">
-            <view class="state-popup bg-fff">
-                <view class="title-close flex align-items-center">
-                    <view class="title flex-1 line-clamp-1 color-342369 font36 fw-5">延期公告</view>
-                    <view class="close flex align-items-center justify-content-center" @tap="this.$refs.popup.close();">
-                        <image src="../../static/guanbi@2x.png" mode="widthFix"></image>
-                    </view>
-                </view>
-                <view class="state-swiper relative m-t-25">
-                    <view class="indicators bg-999 color-fff font24 absolute" v-if="banner.length">{{stateIndex+1}}/{{banner.length}}</view>
-                    <swiper autoplay circular @change="swiperChange($event, 'stateIndex')">
-                        <swiper-item v-for="(item, index) in banner" :key="index">
-                            <image src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1618917910,1316838749&fm=26&gp=0.jpg" mode="aspectFill"></image>
-                        </swiper-item>
-                    </swiper>
-                </view>
-                <view class="date bg-f1f1f1 color-342369 text-center font22 m-t-10">此消息发布于：2020-08-30 07:56</view>
-                <view class="text color-342369 font28 m-t-25">
-                	由于部分模具问题，【东方】需要重新修改。预计2周后改完测试，交货期顺延至9月24日，感谢理解。
-                </view>
-            </view>
-            <view class="share-actions bg-fff">
-            	<view class="actions">
-            		<button class="font28 color-342369">分享给好友</button>
-            		<button class="font28 color-342369">保存图片</button>
-            	</view>
-            	<view class="split bg-f8f8f8"></view>
-            	<view class="cancel color-342369 font30 fw-6 text-center p-t-25 p-b-25"  @tap="this.$refs.popup.close();">取消</view>
-            	<view class="ipx-holder" v-if="isIPX"></view>
-            </view>
-        </uni-popup> -->
     </view>
 </template>
 <script>
-import { mapGetters } from 'vuex';
-import uniPopup from '@/components/uni-popup/uni-popup.vue'
+import { mapGetters, mapMutations } from 'vuex';
+import { getGoods, getProgress, collect } from '@/utils/api'
+const filter = {
+    pageSize: 15,
+    pageNo: 1
+}
 export default {
     name: 'detail',
-    components: {
-        uniPopup
-    },
     data() {
         return {
-            banner: [1, 2, 3],
+            lastPage: 0,
+            filter: JSON.parse(JSON.stringify(filter)),
             current: 0,
-            tags: ['#CRP热升华键帽', '#BBOXG0外壳', '#主题鼠标垫', '#主题树脂个性键帽', '#CA原厂球帽'],
             toggle: true,
-            stateIndex: 0,
             type: 'state',
-            backdrop: false
+            backdrop: false,
+            op: {},
+            data: {},
+            progress: [],
+            item: {},
+            collectFlag: false
         }
     },
     computed: {
-        ...mapGetters(['isIPX'])
+        ...mapGetters(['isIPX', 'user', 'query'])
     },
-    onShareAppMessage(){
-    	this.backdrop = false;
-    	return {
-    		title:'c64'
-    	}
+    watch: {
+        backdrop(n, o) {
+            if (!n) this.item = {}
+        },
+        filter(n) {
+            this.getProgress()
+        }
+    },
+    onShareAppMessage() {
+        this.backdrop = false
+        return {
+            title: this.data.goodName
+        }
+    },
+    onLoad(op) {
+        this.op = { ...op, ...this.query }
+        this.getGoods()
+        this.getProgress()
+    },
+    onUnload() {
+        this.hasChanged()
+    },
+    onReatchBottom() {
+        let { filter, lastPage } = this;
+        if (filter.pageNo < lastPage) filter.pageNo += 1
     },
     methods: {
-        swiperChange(e, item) {
-            let { current } = e.detail;
-            this[item] = current;
+        ...mapMutations(['setShareInfo', 'setCollectFlag', 'setKeyword', 'setQuery']),
+        getGoods() {
+            let { op } = this, { userNo } = this.user;
+            getGoods({ ...op, userNo }).then(res => {
+                res = res || {};
+                for (let k in res)
+                    if (k.match(/imgInfo/gi))
+                        res[k] = JSON.parse(res[k] || '[]')
+                res.goodStatus = 'GB'
+                this.data = res;
+                this.collectFlag = this.data.scNum
+                this.setQuery()
+            })
         },
-        toPoster(){
-        	uni.navigateTo({url:'./poster',complete:()=>this.backdrop = false})
+        getProgress() {
+            let { op, filter } = this, { userNo } = this.user;
+            getProgress({ goodId: op.id, userNo, ...filter }).then(res => {
+                let { list, lastPage } = res
+                this.lastPage = lastPage || 1
+                list = list || [];
+                for (let k of list) {
+                    if (k.imgInfo) k.imgInfo = JSON.parse(k.imgInfo || '[]')
+                }
+                this.progress = [...this.progress, ...list]
+            })
+        },
+        swiperChange(e, flag, item) {
+            let { current } = e.detail;
+            if (item) {
+                item[flag] = current
+            } else {
+                this[flag] = current;
+            }
+            this.$forceUpdate()
+        },
+        toPoster() {
+            this.setShareInfo(this.data)
+            uni.navigateTo({ url: './poster', complete: () => this.backdrop = false })
+        },
+        collectIt() {
+            let { userNo } = this.user, { id } = this.data, { scNum } = this.data
+            if (scNum) {
+                this.collectFun(userNo, id, scNum);
+                return
+            }
+            uni.getSetting({
+                withSubscriptions: true,
+                success: setting => {
+                    if (setting.subscriptionsSetting.mainSwitch) {
+                        uni.requestSubscribeMessage({
+                            tmplIds: ['3_rkWnbikNVYZ1ut7oD_lo9U_Z6Bh2fHJqUjpFqCUGk'],
+                            success: res => {
+                                if (res['3_rkWnbikNVYZ1ut7oD_lo9U_Z6Bh2fHJqUjpFqCUGk'] == 'reject') {
+                                    uni.showToast({
+                                        title: '您已取消授权',
+                                        icon: 'none'
+                                    })
+                                    return
+                                }
+                                this.collectFun(userNo, id, scNum)
+                            }
+                        })
+                    } else {
+                        uni.showModal({
+                            title: '授权',
+                            content: '需要您的授权并订阅活动提醒',
+                            showCancel: false,
+                            success: modal => {
+                                if (modal.confirm) {
+                                    uni.openSetting()
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        },
+        collectFun(userNo, goodId, scNum) {
+            collect({ userNo, goodId }, !scNum).then(res => {
+                let { code } = res;
+                if (code == 200) {
+                    this.data.scNum = !scNum ? 1 : 0;
+                    uni.showToast({
+                        title: `${scNum?'取消收藏':'添加收藏'}`,
+                        icon: 'none'
+                    })
+                }
+            })
+        },
+        hasChanged() {
+            let { collectFlag } = this, { scNum } = this.data;
+            if (collectFlag != scNum) {
+                this.setCollectFlag(true)
+            }
+        },
+        playIt(index) {
+            this.$nextTick(() => {
+                let video = uni.createVideoContext(`video${index}`)
+                video.play()
+            })
+        },
+        videoFun(index, flag) {
+            this.$nextTick(() => {
+                let { item } = this;
+                try {
+                    item.imgInfo[index].is_play = !!(flag == 'play')
+                    this.$forceUpdate()
+                } catch (error) {
+                    // do nothing
+                }
+            })
+        },
+        handler() {
+            let { goodStatus, buyUrl } = this.data;
+            if (goodStatus.match(/gb/gi) && buyUrl)
+                uni.showModal({
+                    content: `购买链接${buyUrl}`,
+                    showCancel: false,
+                    confirmText: '立即复制',
+                    success: res => {
+                        if (res.confirm) {
+                            uni.setClipboardData({
+                                data: buyUrl,
+                            })
+                        }
+                    }
+                })
+
+        },
+        filterIt(keyword, flag) {
+            this.$nextTick(() => {
+                uni.navigateTo({ url: `/pages/search/result?${flag}=${keyword}` })
+            })
         }
     }
 }
@@ -246,10 +383,11 @@ swiper {
 
 .icon-block {
     transition: all .25s;
+    transform-origin: center;
 
     &.up {
-        transform: rotate(-180deg);
         transform-origin: center;
+        transform: rotate(-180deg);
     }
 
     .toggle-icon {
@@ -262,15 +400,15 @@ swiper {
     height: 40upx;
     border-radius: 50upx;
 
-    &.ic {
-        background: #FD3691;
-        font-size: 36upx;
-    }
+    // &.ic,&.IC {
+    //     background: #FD3691;
+    //     font-size: 36upx;
+    // }
 
-    &.buy {
-        background: #6448B5;
-        font-size: 32upx;
-    }
+    // &.buy {
+    //     background: #6448B5;
+    //     font-size: 32upx;
+    // }
 }
 
 .state {
@@ -279,10 +417,22 @@ swiper {
     box-shadow: 0 0 20upx 0 #CCCCCC;
     padding: 15upx;
 
-    image {
+    image,
+    video {
         width: 300upx;
         height: 200upx;
         background: #f1f1f1;
+        vertical-align: middle;
+    }
+
+    .icon {
+        width: 96upx;
+        height: 96upx;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        background: transparent;
     }
 
     .main {
@@ -298,6 +448,7 @@ swiper {
     left: 0;
     top: 101vh;
     z-index: 101;
+
     &.show {
         top: 0;
     }
@@ -336,28 +487,51 @@ swiper {
         width: 48upx;
     }
 
-    swiper {
-        width: 100%;
-        height: 414upx;
+    .state-swiper {
+        swiper {
+            width: 100%;
+            height: 414upx;
+
+            .video {
+                width: 100%;
+                height: 100%;
+                vertical-align: middle;
+            }
+
+
+        }
+
+        .icon {
+            width: 96upx;
+            height: 96upx;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            background: transparent;
+        }
     }
+
 }
 
 .share-actions {
-	position: absolute;
+    position: absolute;
     width: 100vw;
     bottom: 0;
     left: 0;
-    transform:translateY(100%);
-    
-    &.show{
-    	transform:translateY(0%);
-    	// transition: all .25s;
+    transform: translateY(100%);
+
+    &.show {
+        transform: translateY(0%);
+        // transition: all .25s;
     }
-    &.hide{
-    	transform:translateY(100%);
-    	// transition: all .25s;
+
+    &.hide {
+        transform: translateY(100%);
+        // transition: all .25s;
 
     }
+
     button {
         background: #fff;
         padding: 25upx 0;

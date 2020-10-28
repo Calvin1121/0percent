@@ -132,7 +132,6 @@ export default {
         };
     },
     mounted() {
-        console.log(this.blockColor.indexOf('#'))
         //#ifndef APP-PLUS-NVUE
         const query = uni.createSelectorQuery().in(this);
         query
@@ -245,7 +244,7 @@ export default {
 <style>
 /* #ifdef APP-PLUS-NVUE */
 .progress-box {
-    height: 32rpx;
+    height: 32upx;
     position: relative;
     display: flex;
     align-items: center;
@@ -254,7 +253,7 @@ export default {
 
 .readers-slider {
     background-color: #d8d8d8;
-    border-radius: 2px;
+    border-radius: 6upx;
     width: 100%;
     display: flex;
     flex: 1;
@@ -269,19 +268,20 @@ export default {
     position: relative;
     font-size: 0;
     align-items: center;
+    border-radius: 6upx;
 }
 
 .dist {
     background-color: #00e3ab;
-    height: 16rpx;
-    width: 16rpx;
+    height: 16upx;
+    width: 16upx;
     border-radius: 50%;
 }
 
 .rid-box {
     background-color: rgba(0, 227, 171, 0.2);
-    height: 32rpx;
-    width: 32rpx;
+    height: 32upx;
+    width: 32upx;
     border-radius: 50%;
     position: absolute;
     left: 0;
@@ -296,8 +296,8 @@ export default {
 /* #ifndef APP-PLUS-NVUE */
 .progress-box {
     width: 100%;
-    min-width: 200rpx;
-    height: 32rpx;
+    min-width: 200upx;
+    height: 32upx;
     position: relative;
     display: flex;
     align-items: center;
@@ -305,7 +305,7 @@ export default {
 
 .readers-slider {
     background: #F1F1F1;
-    border-radius: 2px;
+    border-radius: 6upx;
     width: 100%;
     height: 2px;
 }
@@ -315,13 +315,14 @@ export default {
     height: 100%;
     position: relative;
     font-size: 0;
+    border-radius: 6upx;
 }
 
 .dist {
     background: #00E3AB;
     display: inline-block;
-    height: 16rpx;
-    width: 16rpx;
+    height: 16upx;
+    width: 16upx;
     border-radius: 50%;
     position: absolute;
     right: 50%;
@@ -331,8 +332,8 @@ export default {
 
 .rid-box {
     background: rgba(0, 227, 171, 0.2);
-    height: 32rpx;
-    width: 32rpx;
+    height: 32upx;
+    width: 32upx;
     border-radius: 50%;
     position: absolute;
     right: 0;

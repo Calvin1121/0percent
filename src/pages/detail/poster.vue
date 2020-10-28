@@ -14,6 +14,7 @@
 const img = '../../static/img.png'
 const code = '../../static/avatar.png'
 const line = '../../static/line.png'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
     name: 'poster',
     data() {
@@ -21,12 +22,27 @@ export default {
             poster: ''
         }
     },
-    created() {
-        this.$nextTick(() => {
-            this.draw()
-        })
+    watch: {
+        shareInfo: {
+            handler(n, o) {
+                if (n.id) {
+                    this.$nextTick(() => {
+                        this.draw()
+                    })
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
+    computed: {
+        ...mapGetters(['shareInfo'])
+    },
+    onUnload(){
+        this.setShareInfo()
     },
     methods: {
+        ...mapMutations(['setShareInfo']),
         preView() {
             let current = this.poster;
             uni.previewImage({
@@ -85,8 +101,24 @@ export default {
                 })
             }
         },
-        draw() {
-            let ctx = uni.createCanvasContext("poster");
+        getPic(url) {
+            return new Promise(resolve => {
+                uni.downloadFile({
+                    url,
+                    success: res => {
+                        let { statusCode, tempFilePath } = res;
+                        if(statusCode == 200){
+                            resolve(tempFilePath)
+                        }
+                    }
+                });
+            })
+        },
+        async draw() {
+            let ctx = uni.createCanvasContext("poster"),
+                { shareInfo } = this;
+            console.log(shareInfo.showImgInfo)
+            let img = await this.getPic((shareInfo.showImgInfo[0]||{}).img)
             ctx.setFillStyle("#ffffff")
             ctx.rect(0, 0, uni.upx2px(664), uni.upx2px(1030))
             ctx.fill()
@@ -95,11 +127,16 @@ export default {
             ctx.beginPath();
             ctx.fillStyle = "#342369";
             ctx.font = `normal bold ${uni.upx2px(36)}px sans-serif`;
-            ctx.fillText('c64', uni.upx2px(28), uni.upx2px(510));
-            ctx.font = `normal regular ${uni.upx2px(30)}px sans-serif`;
-            ctx.fillText('crp keycaps', uni.upx2px(28), uni.upx2px(560));
+            ctx.fillText(`${shareInfo.goodName}`, uni.upx2px(28), uni.upx2px(510));
             ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
-            ctx.fillText('MDA高度键帽，由MELGEEK制造', uni.upx2px(28), uni.upx2px(610));
+            let strs = this.strToArray(`${shareInfo.info||''}`)
+            for (let k = 0; k < strs.length; k++) {
+                ctx.fillText(strs[k], uni.upx2px(28), uni.upx2px(575 + k * 40));
+            }
+            // ctx.font = `normal regular ${uni.upx2px(30)}px sans-serif`;
+            // ctx.fillText('crp keycaps', uni.upx2px(28), uni.upx2px(560));
+            // ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
+            // ctx.fillText('MDA高度键帽，由MELGEEK制造', uni.upx2px(28), uni.upx2px(610));
             ctx.font = `normal bold ${uni.upx2px(40)}px sans-serif`;
             ctx.fillText('长按识别小程序', uni.upx2px(36), uni.upx2px(860));
             ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
@@ -126,6 +163,18 @@ export default {
                     })
                 })
             })
+        },
+        strToArray(str, length = 21) {
+            if (str < length) {
+                let rs = [];
+                rs[0] = str;
+                return rs || []
+            } else {
+                let reg = new RegExp(`.{${length}}`, 'gi');
+                let rs = str.match(reg);
+                rs.push(str.substring(rs.join('').length));
+                return rs || []
+            }
         }
     }
 }

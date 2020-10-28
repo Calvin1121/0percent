@@ -3,7 +3,10 @@
         {
             "path": "pages/index/index",
             "style":
-            {}
+            {
+                "disableScroll":false,
+                "enablePullDownRefresh": true
+            }
         },
         {
             "path": "pages/search/index",
@@ -39,6 +42,7 @@
     {
         "navigationStyle": "custom",
         "navigationBarBackgroundColor": "#F8F8F8",
-        "backgroundColor": "#F8F8F8"
+        "backgroundColor": "#ffffff",
+        "backgroundTextStyle":"light"
     }
 }

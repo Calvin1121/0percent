@@ -1,23 +1,23 @@
 <script>
 import { mapMutations } from 'vuex';
 export default {
-    onLaunch: function() {
-        console.log('App Launch')
+    onLaunch: function(o) {
         this.init()
-    },
-    onShow: function() {
-        console.log('App Show')
-    },
-    onHide: function() {
-        console.log('App Hide')
+        const query = decodeURIComponent(o.query)
+        let { scene } = query || {};
+        this.setQuery(scene)
+
     },
     methods: {
         init() {
             let ipx = !!((uni.getSystemInfoSync().model || '').match(/iphone x|iphone 11|iphon 12/gi))
-            console.log(uni.getSystemInfoSync().model)
             this.setIsIPX(ipx)
+            this.setIsAll()
+            this.setToken()
+            this.setCollectFlag()
+            this.setQuery()
         },
-        ...mapMutations(['setIsIPX'])
+        ...mapMutations(['setIsIPX', 'setIsAll', 'setToken', 'setCollectFlag', 'setQuery'])
     }
 }
 </script>

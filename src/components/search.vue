@@ -3,14 +3,16 @@
         <view class="icon-block p-l-30 p-r-30 flex align-items-center justify-content-center">
             <image :src="`../static/sousuo${bottom?'@2x':''}.png`" mode="widthFix" class="icon"></image>
         </view>
-        <input type="text" class="color-342369 flex-1" v-model="search.keywords" placeholder-style="color:#342369" @confirm="confirm" :placeholder="placeholder" :focus="!disabled" :disabled="disabled"  @focus="this.search.type=''" />
-        <view class="cancle-block p-l-30 p-r-30 flex align-items-center justify-content-center" v-if="search.keywords && !disabled" @tap="cancel">
+        <input type="text" class="color-342369 flex-1" :disabled="disabled" v-if="disabled" />
+        <input type="text" class="color-342369 flex-1" v-model="value" placeholder-style="color:#342369" @confirm="confirm" :placeholder="placeholder" @focus="setFocus(true)" @blur="setFocus()" :focus="focus" v-else />
+        <view class="cancle-block p-l-30 p-r-30 flex align-items-center justify-content-center" v-if="value && !disabled" @tap="cancel">
             <image src="../static/guanbi@2x.png" mode="widthFix" class="icon"></image>
         </view>
     </view>
 </template>
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
+var timer;
 export default {
     name: 'search',
     props: {
@@ -33,50 +35,62 @@ export default {
         disabled: {
             type: Boolean,
             default: false,
-        }
+        },
     },
     data() {
         return {
-            focus: false
+            value: '',
+            focus: false,
+        }
+    },
+    watch: {
+        keyword: {
+            handler(n, o) {
+                this.value = n;
+            },
+            immediate: true
         }
     },
     computed: {
-        ...mapGetters(['search'])
+        ...mapGetters(['keyword'])
     },
-    watch: {
-        search: {
-            handler(n, o) {
-                if (n && n.type == 'confirm'){
-                    uni.navigateTo({ url: './result' })
-                }
-            },
-            deep: true
-        },
+    created() {
+        this.focus = !this.disabled
     },
     methods: {
-        ...mapMutations(['setSearch']),
+        ...mapMutations(['setKeyword']),
+        ...mapActions(['actHistory']),
         tapSearch() {
             let { disabled } = this;
             if (disabled) uni.navigateTo({ url: '/pages/search/index' })
         },
         confirm() {
-            let { keywords } = this.search, search = {};
-            if (!((keywords || '').trim())) {
+            let { value } = this;
+            if (!(value || '').trim()) {
                 uni.showToast({
                     title: '搜索关键词不能为空~',
                     icon: 'none'
                 })
-                this.search.keywords = ''
+                this.value = ''
                 return
             }
-            search = { ...search, keywords, type: 'confirm' };
-            this.setSearch(search)
+            this.setKeyword(value)
+            this.actHistory(value)
+            uni.navigateTo({ url: '/pages/search/result' })
+        },
+        setFocus(flag = false) {
+            clearTimeout(timer)
+            this.$nextTick(() => {
+                this.focus = flag
+            })
         },
         cancel() {
-            this.search.keywords = ''
-            let { keywords } = this.search, search = {};
-            search = { ...search, keywords, type: '' };
-            this.setSearch(search)
+            this.value = ''
+            this.focus = false
+            this.setKeyword()
+            timer = setTimeout(() => {
+                this.focus = true;
+            },100)
         }
     }
 }
