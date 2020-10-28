@@ -46,7 +46,7 @@ fly.interceptors.request.use(request => {
         fly.lock();
         return getToken(request)
     } else {
-        request.headers["token"] = store.state.token;
+        request.headers["Authorization"] = store.state.token;
     }
 })
 const $http = (url, params = {}, method = 'POST', no_loading = false) => {
