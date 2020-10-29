@@ -2,7 +2,7 @@
     <view class="flex block flex-column">
         <navbar />
         <view class="poster-block flex-1 flex flex-column align-items-center">
-            <view class="poster m-t-30">
+            <view class="poster m-t-30" :style="{'box-shadow': poster?'0upx 0upx 10upx 4upx #CCCCCC':''}">
                 <canvas id="poster" canvas-id="poster" v-if="!poster"></canvas>
                 <image :src="poster" mode="widthFix" @tap="preView" v-else></image>
             </view>
@@ -19,7 +19,8 @@ export default {
     name: 'poster',
     data() {
         return {
-            poster: ''
+            poster: '',
+            title: ''
         }
     },
     watch: {
@@ -33,12 +34,21 @@ export default {
             },
             deep: true,
             immediate: true
+        },
+        title(title, o) {
+            if (title) {
+                uni.showToast({
+                    title,
+                    icon: 'none'
+                })
+                this.title = ''
+            }
         }
     },
     computed: {
         ...mapGetters(['shareInfo'])
     },
-    onUnload(){
+    onUnload() {
         this.setShareInfo()
     },
     methods: {
@@ -87,17 +97,8 @@ export default {
             if (res) {
                 uni.saveImageToPhotosAlbum({
                     filePath: this.poster,
-                    success: success => {
-                        uni.showToast({
-                            title: '保存成功'
-                        })
-                    },
-                    fail: fail => {
-                        uni.showToast({
-                            title: '保存失败',
-                            icon: 'none'
-                        })
-                    }
+                    success: success => this.title = '保存成功',
+                    fail: fail => this.title = '保存失败'
                 })
             }
         },
@@ -107,8 +108,10 @@ export default {
                     url,
                     success: res => {
                         let { statusCode, tempFilePath } = res;
-                        if(statusCode == 200){
+                        if (statusCode == 200) {
                             resolve(tempFilePath)
+                        } else {
+                            resolve(null)
                         }
                     }
                 });
@@ -117,8 +120,11 @@ export default {
         async draw() {
             let ctx = uni.createCanvasContext("poster"),
                 { shareInfo } = this;
-            console.log(shareInfo.showImgInfo)
-            let img = await this.getPic((shareInfo.showImgInfo[0]||{}).img)
+            let img = await this.getPic((shareInfo.showImgInfo[0] || {}).img)
+            if (!img) {
+                this.title = '海报生成失败'
+                return
+            }
             ctx.setFillStyle("#ffffff")
             ctx.rect(0, 0, uni.upx2px(664), uni.upx2px(1030))
             ctx.fill()
@@ -159,7 +165,8 @@ export default {
                         success: res => {
                             let { tempFilePath } = res;
                             this.poster = tempFilePath || ''
-                        }
+                        },
+                        fail: fail => this.title = '海报生成失败'
                     })
                 })
             })
@@ -192,7 +199,6 @@ export default {
     border-radius: 20upx;
     background: #fff;
     overflow: hidden;
-    box-shadow: 0upx 0upx 10upx 4upx #CCCCCC;
 
     image {
         width: 100%;

@@ -1,7 +1,7 @@
 import Fly from 'flyio/dist/npm/wx'
 import store from '../store/index.js'
-const API_URL = "http://47.114.135.205:9009/";
-// const API_URL = "http://192.168.1.72:9009/";
+// const API_URL = "https://bf0.trunshare.com/bf0/";
+const API_URL = "http://192.168.1.72:9009/bf0/";
 let fly = new Fly(),
     tokenFly = new Fly();
 fly.config = tokenFly.config = {
@@ -46,7 +46,7 @@ fly.interceptors.request.use(request => {
         fly.lock();
         return getToken(request)
     } else {
-        request.headers["Authorization"] = store.state.token;
+        request.headers["token"] = store.state.token;
     }
 })
 const $http = (url, params = {}, method = 'POST', no_loading = false) => {

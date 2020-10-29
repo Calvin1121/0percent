@@ -3,7 +3,7 @@
         <navbar />
         <view class="banner relative" v-if="data.imgInfo.length">
             <view class="indicators bg-999 color-fff font24 absolute">{{current+1}}/{{data.imgInfo.length}}</view>
-            <swiper autoplay circular @change="swiperChange($event, 'current')">
+            <swiper circular @change="swiperChange($event, 'current')">
                 <swiper-item v-for="(item, index) in data.imgInfo" :key="index">
                     <image class="bg-f1f1f1" :src="item.img" mode="aspectFill"></image>
                 </swiper-item>
@@ -187,7 +187,6 @@ export default {
                 for (let k in res)
                     if (k.match(/imgInfo/gi))
                         res[k] = JSON.parse(res[k] || '[]')
-                res.goodStatus = 'GB'
                 this.data = res;
                 this.collectFlag = this.data.scNum
                 this.setQuery()
