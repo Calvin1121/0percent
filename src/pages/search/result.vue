@@ -3,7 +3,7 @@
         <navbar />
         <view class="main flex flex-wrap justify-content-space-between p-l-20 p-r-20 p-t-40 p-b-40">
             <view class="item-block m-b-30" v-for="(item, index) in list" :key="index">
-                <item :item="item" />
+                <item :time="time" :item="item" />
             </view>
         </view>
         <empty v-if="lastPage && !list.length" />
@@ -22,7 +22,8 @@ export default {
             lastPage: 0,
             filter: JSON.parse(JSON.stringify(filter)),
             list: [],
-            op: {}
+            op: {},
+            time:''
         }
     },
     computed: {
@@ -53,7 +54,8 @@ export default {
             let { filter, op } = this, { keyword } = this, params = { ...filter, ...op };
             if (keyword) params.keyWord = keyword
             getAllGoods(params).then(res => {
-                let { list, lastPage } = res;
+                let { list, lastPage } = res.page||{},{time} = res;
+                this.time = time
                 this.list = [...this.list, ...(list || [])]
                 this.lastPage = lastPage || 1
             })

@@ -1,33 +1,41 @@
 <template>
     <view class="flex block flex-column">
         <navbar />
-        <view class="poster-block flex-1 flex flex-column align-items-center">
-            <view class="poster m-t-30" :style="{'box-shadow': poster?'0upx 0upx 10upx 4upx #CCCCCC':''}">
+        <view class="poster-block flex-1 flex flex-column align-items-center justify-content-center">
+            <view class="poster" :style="{'box-shadow': poster?'0rpx 0rpx 10rpx 4rpx #CCCCCC':''}">
                 <canvas id="poster" canvas-id="poster" v-if="!poster"></canvas>
                 <image :src="poster" mode="widthFix" @tap="preView" v-else></image>
             </view>
-            <view class="save font30 color-fff flex align-items-center justify-content-center m-t-25" @tap="savePoster">保存图片</view>
+            <view class="save font30 color-fff flex align-items-center justify-content-center m-t-60" v-if="poster" @tap="savePoster">保存图片</view>
         </view>
     </view>
 </template>
 <script>
-const img = '../../static/img.png'
-const code = '../../static/avatar.png'
-const line = '../../static/line.png'
+import { API_URL } from '@/utils/request'
 import { mapGetters, mapMutations } from 'vuex'
+import { getQrCode } from '@/utils/api'
 export default {
     name: 'poster',
     data() {
         return {
             poster: '',
-            title: ''
+            title: '',
+            code:''
         }
     },
     watch: {
         shareInfo: {
             handler(n, o) {
                 if (n.id) {
-                    this.$nextTick(() => {
+                    this.$nextTick(async () => {
+                        let {qrCode, id} = this.shareInfo;
+                        if(!qrCode){
+                            let { url } = await getQrCode(n.id);
+                            qrCode = url;
+                        }else{
+                            qrCode =  `${API_URL}${qrCode}`
+                        }
+                        this.code = qrCode;
                         this.draw()
                     })
                 }
@@ -50,6 +58,16 @@ export default {
     },
     onUnload() {
         this.setShareInfo()
+    },
+    async created(){
+        // let {qrCode, id} = this.shareInfo;
+        // if(!qrCode){
+        //     let { url } = await getQrCode(id);
+        //     qrCode = url;
+        // }
+        // this.code = qrCode;
+        // this.draw()
+
     },
     methods: {
         ...mapMutations(['setShareInfo']),
@@ -118,6 +136,7 @@ export default {
             })
         },
         async draw() {
+            uni.showLoading({title:'海报生成中'})
             let ctx = uni.createCanvasContext("poster"),
                 { shareInfo } = this;
             let img = await this.getPic((shareInfo.showImgInfo[0] || {}).img)
@@ -146,7 +165,7 @@ export default {
             ctx.font = `normal bold ${uni.upx2px(40)}px sans-serif`;
             ctx.fillText('长按识别小程序', uni.upx2px(36), uni.upx2px(860));
             ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
-            ctx.fillText('好货要和朋友一起分享', uni.upx2px(36), uni.upx2px(920));
+            ctx.fillText('好货要和朋友一起分享', uni.upx2px(40), uni.upx2px(920));
             ctx.beginPath()
             ctx.setStrokeStyle('#cccccc');
             ctx.setLineWidth(uni.upx2px(2));
@@ -155,9 +174,14 @@ export default {
             ctx.setLineDash([2, 4])
             ctx.stroke()
             ctx.beginPath()
-            ctx.arc(uni.upx2px(516), uni.upx2px(872), uni.upx2px(96), 0, Math.PI * 2);
+            ctx.arc(uni.upx2px(516), uni.upx2px(874), uni.upx2px(96), 0, Math.PI * 2);
             ctx.clip();
-            ctx.drawImage(code, uni.upx2px(420), uni.upx2px(776), uni.upx2px(192), uni.upx2px(192));
+            let code = await this.getPic(this.code)
+             if (!code) {
+                this.title = '海报生成失败'
+                return
+            }
+            ctx.drawImage(code, uni.upx2px(420), uni.upx2px(770), uni.upx2px(192), uni.upx2px(192));
             ctx.draw(true, () => {
                 this.$nextTick(() => {
                     uni.canvasToTempFilePath({
@@ -165,6 +189,7 @@ export default {
                         success: res => {
                             let { tempFilePath } = res;
                             this.poster = tempFilePath || ''
+                            uni.hideLoading()
                         },
                         fail: fail => this.title = '海报生成失败'
                     })
@@ -172,13 +197,14 @@ export default {
             })
         },
         strToArray(str, length = 21) {
-            if (str < length) {
+            if (str.length < length) {
                 let rs = [];
                 rs[0] = str;
                 return rs || []
             } else {
                 let reg = new RegExp(`.{${length}}`, 'gi');
                 let rs = str.match(reg);
+                console.log()
                 rs.push(str.substring(rs.join('').length));
                 return rs || []
             }

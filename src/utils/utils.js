@@ -19,10 +19,12 @@
 //     }
 // }
 const dateFormat = (date, fmt = 'yyyy-MM-dd') => {
-    if (isNaN(date)) {
+    if (isNaN(date) && date) {
         date = new Date(date.replace(/\-/gi, '/'))
-    } else {
+    } else if(!isNaN(date) && date) {
         date = new Date(date)
+    }else if(!date){
+        date = new Date()
     }
     if (/(y+)/.test(fmt)) {
         fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))

@@ -22,7 +22,7 @@ export default{
 	z-index: 0;
 	filter:grayscale(0);
 	.icon{
-		width: 194upx;
+		width: 300upx;
 	}
 }
 </style>

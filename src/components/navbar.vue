@@ -63,9 +63,11 @@ export default {
             this.setNavbar(this.navbar + statusBarHeight)
         },
         tapBack() {
-            let { canBack, delta } = this, pages = getCurrentPages();
-            if (pages.length == 1 && canBack) uni.reLaunch({ url: '/pages/index/index' })
-            if (pages.length > 1 && canBack) uni.navigateBack({ delta })
+            this.$nextTick(() => {
+                let { canBack, delta } = this, pages = getCurrentPages();
+                if (pages.length == 1 && canBack) uni.reLaunch({ url: '/pages/index/index' })
+                if (pages.length > 1 && canBack) uni.navigateBack({ delta })
+            })
         },
         ...mapMutations(['setNavbar'])
     }
@@ -102,8 +104,9 @@ export default {
     .fresh {
         left: 50%;
         bottom: 0upx;
-        transform:translateX(-50%);
+        transform: translateX(-50%);
         z-index: 2;
+
         .loading {
             background: transparent;
             width: auto;
@@ -112,6 +115,7 @@ export default {
             padding: 0;
             margin: 0;
             transform: scale(1.3) translateY(-5upx);
+
             &:after {
                 display: none;
 

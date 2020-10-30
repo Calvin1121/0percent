@@ -30,7 +30,6 @@ const store = new Vuex.Store({
         shareInfo: '',
         user: {},
         collect: false,
-        query:{}
     },
     getters: {
         isIPX: state => state.isIPX,
@@ -44,7 +43,6 @@ const store = new Vuex.Store({
         shareInfo: state => state.shareInfo,
         user: state => state.user,
         collectFlag: state => state.collectFlag,
-        query: state => state.query,
     },
     mutations: {
         setIsIPX(state, isIPX = false) {
@@ -80,9 +78,6 @@ const store = new Vuex.Store({
         setCollectFlag(state, collectFlag = false) {
             state.collectFlag = collectFlag
         },
-        setQuery(state, query = {}){
-            state.query = query;
-        }
     },
     actions: {
         actHistory({ commit, getters }, keyword) {

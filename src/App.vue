@@ -3,10 +3,6 @@ import { mapMutations } from 'vuex';
 export default {
     onLaunch: function(o) {
         this.init()
-        const query = decodeURIComponent(o.query)
-        let { scene } = query || {};
-        this.setQuery(scene)
-
     },
     methods: {
         init() {
@@ -15,9 +11,8 @@ export default {
             this.setIsAll()
             this.setToken()
             this.setCollectFlag()
-            this.setQuery()
         },
-        ...mapMutations(['setIsIPX', 'setIsAll', 'setToken', 'setCollectFlag', 'setQuery'])
+        ...mapMutations(['setIsIPX', 'setIsAll', 'setToken', 'setCollectFlag'])
     }
 }
 </script>

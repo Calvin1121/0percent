@@ -1,7 +1,7 @@
 import Fly from 'flyio/dist/npm/wx'
 import store from '../store/index.js'
-// const API_URL = "https://bf0.trunshare.com/bf0/";
-const API_URL = "http://192.168.1.72:9009/bf0/";
+const API_URL = "https://bf0.trunshare.com/bf0/";
+// const API_URL = "http://192.168.1.72:9009/bf0/";
 let fly = new Fly(),
     tokenFly = new Fly();
 fly.config = tokenFly.config = {
@@ -51,9 +51,9 @@ fly.interceptors.request.use(request => {
 })
 const $http = (url, params = {}, method = 'POST', no_loading = false) => {
     if (!no_loading) uni.showLoading({ title: '加载中' })
+    for(let k in params) if(!params[k]) delete params[k]
     return new Promise((resolve, reject) => {
         fly.request(url, params, { method }).then(res => {
-            if (!no_loading) uni.hideLoading()
             let { code, message, data } = res.data || {};
             if (code != 200 && message) {
                 uni.showToast({
@@ -61,14 +61,15 @@ const $http = (url, params = {}, method = 'POST', no_loading = false) => {
                     icon: 'none'
                 })
             }
+            if(data) data.code = code
             uni.stopPullDownRefresh()
+        if (!no_loading) uni.hideLoading()
             resolve(data || res.data || {})
         }).catch(error => {
-            console.log(error)
             if (!no_loading) uni.hideLoading()
             uni.stopPullDownRefresh()
             reject(error)
         })
     })
 }
-export { $http, getToken };
+export { $http, getToken, API_URL };

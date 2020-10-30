@@ -1,128 +1,127 @@
 <template>
-    <view class="detail" v-if="data.id">
+    <view class="detail">
         <navbar />
-        <view class="banner relative" v-if="data.imgInfo.length">
-            <view class="indicators bg-999 color-fff font24 absolute">{{current+1}}/{{data.imgInfo.length}}</view>
-            <swiper circular @change="swiperChange($event, 'current')">
-                <swiper-item v-for="(item, index) in data.imgInfo" :key="index">
-                    <image class="bg-f1f1f1" :src="item.img" mode="aspectFill"></image>
-                </swiper-item>
-            </swiper>
-        </view>
-        <view class="base-info p-l-20 p-r-20 p-t-20 p-b-20">
-            <view class="title share-in flex align-items-center justify-content-space-between">
-                <view class="title color-342369 fw-6 font40">{{data.goodName}}</view>
-                <view class="share-in flex align-items-center">
-                    <view class="share flex align-items-center justify-content-center p-r-15 p-t-15 p-b-15" @tap="this.type='share';this.backdrop=true">
-                        <image src="../../static/fenxiang@2x.png" mode="widthFix"></image>
-                    </view>
-                    <view class="in flex align-items-center justify-content-center p-l-15 p-t-15 p-b-15" @tap="collectIt">
-                        <image :src="`/static/${data.scNum?'yiguanzhu@2x':'guanzhu@2x'}.png`" mode="widthFix"></image>
-                    </view>
-                </view>
+        <block v-if="data.id">
+            <view class="banner relative" v-if="data.imgInfo.length">
+                <view class="indicators bg-999 color-fff font24 absolute">{{current+1}}/{{data.imgInfo.length}}</view>
+                <swiper circular @change="swiperChange($event, 'current')">
+                    <swiper-item v-for="(item, index) in data.imgInfo" :key="index">
+                        <image class="bg-f1f1f1" :src="item.img" mode="aspectFill"></image>
+                    </swiper-item>
+                </swiper>
             </view>
-            <view class="desc font28 color-342369">{{data.info||''}}</view>
-            <view class="tags flex flex-wrap p-t-20" v-if="data.itemNames.length">
-                <view class="tag font24 color-6448B5 m-r-20 m-t-20" v-for="(item, index) in data.itemNames" :key="index" @click.stop="filterIt(item, 'itemName')">{{item}}</view>
-            </view>
-        </view>
-        <view class="split bg-f8f8f8"></view>
-        <view class="info-detail border">
-            <view class="info-main overflow-hidden" :style="{height:`${84*(toggle?5:1)}rpx`,transition:'all .25s'}">
-                <view class="row flex align-items-center">
-                    <view class="label">品牌</view>
-                    <view class="value flex-1 flex align-items-center justify-content-flex-end">
-                        <block v-for="(item, index) in data.keyWordNames" :key="index">
-                            <view class="info-tag" @click.stop="filterIt(item, 'keyWordName')">{{item}}</view>
-                        </block>
-                    </view>
-                </view>
-                <view class="row flex align-items-center">
-                    <view class="label">设计</view>
-                    <view class="value flex-1 flex align-items-center justify-content-flex-end">
-                        <block v-for="(item, index) in data.desNames" :key="index">
-                            <view class="info-tag pink" @click.stop="filterIt(item, 'designerName')">{{item}}</view>
-                        </block>
-                        <!--  <view class="info-tag pink" @click.stop="filterIt(item, 'keyWordName')">{{data.desNames.join('.')}}</view> -->
-                    </view>
-                </view>
-                <view class="row flex align-items-center">
-                    <view class="label">预计开团时间</view>
-                    <view class="value flex-1 text-right">{{data.openTime | dateFormat}}——{{data.closeTime|dateFormat}}</view>
-                </view>
-                <view class="row flex align-items-center">
-                    <view class="label">预计发货时间</view>
-                    <view class="value flex-1 text-right">{{data.closeTime| dateFormat}}——{{data.sendTime|dateFormat}}</view>
-                </view>
-                <view class="row flex align-items-center">
-                    <view class="label">开团平台</view>
-                    <view class="value flex-1 text-right">{{data.platformName}}</view>
-                </view>
-            </view>
-            <view class="toggle-block flex align-items-center justify-content-center">
-                <view class="icon-block p-b-20 p-l-20 p-r-20" :class="{'up':toggle}" @click.stop="this.toggle = !this.toggle">
-                    <image class="toggle-icon" src="../../static/toggle.png" mode="widthFix"></image>
-                </view>
-            </view>
-        </view>
-        <view class="state-block flex flex-column align-items-center p-t-40 p-l-20 p-r-20">
-            <view class="button flex color-fff align-items-center justify-content-center m-b-50" :class="[{'bg-6448B5 font32':!data.goodStatus.match(/ic/gi),'bg-FD3691 font36':data.goodStatus.match(/ic/gi)}]" @click.stop="handler()">{{data.goodStatus.match(/gb/gi)?'购买链接':data.goodStatus}}</view>
-            <view class="states">
-                <block v-for="(item, index) in progress" :key="index">
-                    <view class="state m-b-20 flex" @tap="this.type='state';this.backdrop=true;this.item = item">
-                        <block v-for="(item, index) in item.imgInfo" :key="index">
-                            <view class="relative" v-if="!index">
-                                <image class="icon absolute" src="/static/play.png"></image>
-                                <image class="m-r-15 bg-f1f1f1" :src="item.url" mode="aspectFill" v-if="item.type=='img'"></image>
-                                <video object-fit="fill" :poster="data.showImgInfo[0].img||''" :show-center-play-btn="false" :controls="false" class="m-r-15" :src="item.url" v-if="item.type=='video'"></video>
-                            </view>
-                        </block>
-                        <view class="main">
-                            <view class="title font36 fw-5 color-342369 line-clamp-1" :class="[{'bg-f1f1f1 color-342369':index < progress.length-1,'bg-6448B5 color-27F2C6':index == progress.length-1}]">{{item.speedTitle}}</view>
-                            <view class="desc m-t-10 font24 color-342369">{{item.speedInfo}}</view>
+            <view class="base-info p-l-20 p-r-20 p-t-20 p-b-20">
+                <view class="title share-in flex align-items-center justify-content-space-between">
+                    <view class="title color-342369 fw-6 font40">{{data.goodName||''}}</view>
+                    <view class="share-in flex align-items-center">
+                        <view class="share flex align-items-center justify-content-center p-r-15 p-t-15 p-b-15" @tap="this.type='share';this.backdrop=true">
+                            <image src="../../static/fenxiang@2x.png" mode="widthFix"></image>
+                        </view>
+                        <view class="in flex align-items-center justify-content-center p-l-15 p-t-15 p-b-15" @tap="user.nickName?collectIt():toAuth()">
+                            <image :src="`/static/${data.scNum?'yiguanzhu@2x':'guanzhu@2x'}.png`" mode="widthFix"></image>
                         </view>
                     </view>
-                </block>
+                </view>
+                <view class="desc font28 color-342369">{{data.info||''}}</view>
+                <view class="tags flex flex-wrap p-t-20" v-if="data.keyWordNames.length">
+                    <view class="tag font24 color-6448B5 m-r-20 m-t-20" v-for="(item, index) in data.keyWordNames" :key="index" @click.stop="filterIt(item, 'keyWordName')">{{`#${item}`}}</view>
+                </view>
             </view>
-        </view>
-        <view class="ipx-holder" v-if="isIPX"></view>
-        <view class="backdrop" :class="{show:backdrop,hide:!backdrop}" @touchmove.stop.prevent @click.stop="this.backdrop = false">
-            <view class="state-popup bg-fff" :class="{show:backdrop,hide:!backdrop}" v-if="type=='state'" @click.stop>
-                <view class="title-close flex align-items-center">
-                    <view class="title flex-1 line-clamp-1 color-342369 font36 fw-5">延期公告</view>
-                    <view class="close flex align-items-center justify-content-center" @click.stop="this.backdrop = false">
-                        <image src="../../static/guanbi@2x.png" mode="widthFix"></image>
+            <view class="split bg-f8f8f8"></view>
+            <view class="info-detail border">
+                <view class="info-main overflow-hidden" :style="{height:`${84*(toggle?5:1)}rpx`,transition:'all .25s'}">
+                    <view class="row flex align-items-center">
+                        <view class="label">品牌</view>
+                        <view class="value flex-1 flex align-items-center justify-content-flex-end" v-if="data.businessName">
+                            <view class="info-tag" @click.stop="filterIt(data.businessName, 'busName')">{{data.businessName}}</view>
+                        </view>
+                    </view>
+                    <view class="row flex align-items-center">
+                        <view class="label">设计</view>
+                        <view class="value flex-1 flex align-items-center justify-content-flex-end" v-if="data.desNames.length">
+                            <block v-for="(item, index) in data.desNames" :key="index">
+                                <view class="info-tag pink" @click.stop="filterIt(item, 'designerName')">{{item}}</view>
+                            </block>
+                        </view>
+                    </view>
+                    <view class="row flex align-items-center">
+                        <view class="label">预计开团时间</view>
+                        <view class="value flex-1 text-right">{{data.openTime | dateFormat}}——{{data.closeTime|dateFormat}}</view>
+                    </view>
+                    <view class="row flex align-items-center">
+                        <view class="label">预计发货时间</view>
+                        <view class="value flex-1 text-right">{{data.closeTime| dateFormat}}——{{data.sendTime|dateFormat}}</view>
+                    </view>
+                    <view class="row flex align-items-center">
+                        <view class="label">开团平台</view>
+                        <view class="value flex-1 text-right">{{data.platformName||''}}</view>
                     </view>
                 </view>
-                <view class="state-swiper relative m-t-25">
-                    <image class="icon absolute" src="/static/play.png" @click.stop="playIt(item.stateIndex||0)" v-if="item.imgInfo[item.stateIndex||0].type == 'video' && !item.imgInfo[item.stateIndex||0].is_play"></image>
-                    <view class="indicators bg-999 color-fff font24 absolute">{{(item.stateIndex||0)+1}}/{{item.imgInfo.length}}</view>
-                    <swiper circular @change="swiperChange($event, 'stateIndex', item)">
-                        <swiper-item v-for="(v, i) in item.imgInfo" :key="i">
-                            <block v-if="v.type == 'img'">
-                                <image class="bg-f1f1f1" :src="v.url" mode="aspectFill"></image>
-                            </block>
-                            <block v-else>
-                                <video @play="videoFun(i,'play')" @pause="videoFun(i,'pause')" @ended="videoFun(i,'end')" :id="`video${i}`" :show-center-play-btn="false" :controls="false" :src="(item.stateIndex||0)==i?v.url:''" class="video"></video>
-                            </block>
-                        </swiper-item>
-                    </swiper>
-                </view>
-                <view class="date bg-f1f1f1 color-342369 text-center font22 m-t-10">此消息发布于：{{item.createTime}}</view>
-                <view class="text color-342369 font28 m-t-25">
-                    {{item.speedInfo}}
+                <view class="toggle-block flex align-items-center justify-content-center">
+                    <view class="icon-block p-b-20 p-l-20 p-r-20" :class="{'up':toggle}" @click.stop="this.toggle = !this.toggle">
+                        <image class="toggle-icon" src="../../static/toggle.png" mode="widthFix"></image>
+                    </view>
                 </view>
             </view>
-            <view class="share-actions bg-fff" :class="{show:backdrop,hide:!backdrop}" v-if="type=='share'" @touchmove.stop.prevent @click.stop>
-                <view class="actions">
-                    <button open-type="share" class="font28 color-342369">分享给好友</button>
-                    <button @tap="toPoster" class="font28 color-342369">保存图片</button>
+            <view class="state-block flex flex-column align-items-center p-t-40 p-l-20 p-r-20">
+                <view class="button flex color-fff align-items-center justify-content-center m-b-50" :class="[{'bg-6448B5 font32':!data.goodStatus.match(/ic/gi),'bg-FD3691 font36':data.goodStatus.match(/ic/gi)}]" @click.stop="handler()" v-if="data.goodStatus">{{data.goodStatus.match(/gb/gi)?'购买链接':data.goodStatus}}</view>
+                <view class="states">
+                    <block v-for="(item, index) in progress" :key="index">
+                        <view class="state m-b-20 flex" @tap="this.type='state';this.backdrop=true;this.item = item">
+                            <block v-for="(item, index) in item.imgInfo" :key="index">
+                                <view class="relative" v-if="!index">
+                                    <image class="icon absolute" src="/static/play.png" v-if="item.type=='video'"></image>
+                                    <image class="m-r-15 bg-f1f1f1" :src="item.url" mode="aspectFill" v-if="item.type=='img'"></image>
+                                    <video object-fit="fill" :poster="data.showImgInfo[0].img||''" :show-center-play-btn="false" :controls="false" class="m-r-15" :src="item.url" v-if="item.type=='video'"></video>
+                                </view>
+                            </block>
+                            <view class="main">
+                                <view class="title font36 fw-5 color-342369 line-clamp-1" :class="[{'bg-f1f1f1 color-342369':index < progress.length-1,'bg-6448B5 color-27F2C6':index == progress.length-1}]">{{item.speedTitle}}</view>
+                                <view class="desc m-t-10 font24 color-342369">{{item.speedInfo}}</view>
+                            </view>
+                        </view>
+                    </block>
                 </view>
-                <view class="split bg-f8f8f8"></view>
-                <view class="cancel color-342369 font30 fw-6 text-center p-t-25 p-b-25" @tap="this.backdrop = false">取消</view>
-                <view class="ipx-holder" v-if="isIPX"></view>
             </view>
-        </view>
+            <view class="ipx-holder" v-if="isIPX"></view>
+            <view class="backdrop" :class="{show:backdrop,hide:!backdrop}" @touchmove.stop.prevent @click.stop="this.backdrop = false">
+                <view class="state-popup bg-fff" :class="{show:backdrop,hide:!backdrop,'visibility-hidden':type=='share' || !type}" @click.stop>
+                    <view class="title-close flex align-items-center">
+                        <view class="title flex-1 line-clamp-1 color-342369 font36 fw-5">延期公告</view>
+                        <view class="close flex align-items-center justify-content-center" @click.stop="this.backdrop = false">
+                            <image src="../../static/guanbi@2x.png" mode="widthFix"></image>
+                        </view>
+                    </view>
+                    <view class="state-swiper relative m-t-25">
+                        <image class="icon absolute" src="/static/play.png" @click.stop="playIt(item.stateIndex||0)" v-if="item.imgInfo[item.stateIndex||0].type == 'video' && !item.imgInfo[item.stateIndex||0].is_play"></image>
+                        <view class="indicators bg-999 color-fff font24 absolute">{{(item.stateIndex||0)+1}}/{{item.imgInfo.length}}</view>
+                        <swiper circular @change="swiperChange($event, 'stateIndex', item)">
+                            <swiper-item v-for="(v, i) in item.imgInfo" :key="i">
+                                <block v-if="v.type == 'img'">
+                                    <image class="bg-f1f1f1" :src="v.url" mode="aspectFill"></image>
+                                </block>
+                                <block v-else>
+                                    <video @play="videoFun(i,'play')" @pause="videoFun(i,'pause')" @ended="videoFun(i,'end')" :id="`video${i}`" :show-center-play-btn="false" :controls="false" :src="(item.stateIndex||0)==i?v.url:''" class="video"></video>
+                                </block>
+                            </swiper-item>
+                        </swiper>
+                    </view>
+                    <view class="date bg-f1f1f1 color-342369 text-center font22 m-t-10">此消息发布于：{{item.createTime}}</view>
+                    <view class="text color-342369 font28 m-t-25">
+                        {{item.speedInfo}}
+                    </view>
+                </view>
+                <view class="share-actions bg-fff" :class="{show:backdrop,hide:!backdrop,'visibility-hidden':type=='state' || !type}" @touchmove.stop.prevent @click.stop>
+                    <view class="actions">
+                        <button open-type="share" class="font28 color-342369">分享给好友</button>
+                        <button @tap="toPoster" class="font28 color-342369">保存图片</button>
+                    </view>
+                    <view class="split bg-f8f8f8"></view>
+                    <view class="cancel color-342369 font30 fw-6 text-center p-t-25 p-b-25" @tap="this.backdrop = false">取消</view>
+                    <view class="ipx-holder" v-if="isIPX"></view>
+                </view>
+            </view>
+        </block>
     </view>
 </template>
 <script>
@@ -132,6 +131,7 @@ const filter = {
     pageSize: 15,
     pageNo: 1
 }
+var timer;
 export default {
     name: 'detail',
     data() {
@@ -140,7 +140,7 @@ export default {
             filter: JSON.parse(JSON.stringify(filter)),
             current: 0,
             toggle: true,
-            type: 'state',
+            type: '',
             backdrop: false,
             op: {},
             data: {},
@@ -150,14 +150,24 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['isIPX', 'user', 'query'])
+        ...mapGetters(['isIPX', 'user', 'shareInfo'])
     },
     watch: {
         backdrop(n, o) {
-            if (!n) this.item = {}
+            if (!n) {
+                this.item = {}
+                this.type = ''
+            }
         },
         filter(n) {
             this.getProgress()
+        },
+        shareInfo(n, o) {
+            let { data } = this;
+            if (!n.id && !data.qrCode) {
+                this.getGoods()
+                this.getProgress()
+            }
         }
     },
     onShareAppMessage() {
@@ -167,34 +177,38 @@ export default {
         }
     },
     onLoad(op) {
-        this.op = { ...op, ...this.query }
+        this.op = op
         this.getGoods()
         this.getProgress()
     },
     onUnload() {
         this.hasChanged()
+        clearTimeout(timer)
+    },
+    onHide() {
+        clearTimeout(timer)
     },
     onReatchBottom() {
         let { filter, lastPage } = this;
         if (filter.pageNo < lastPage) filter.pageNo += 1
     },
     methods: {
-        ...mapMutations(['setShareInfo', 'setCollectFlag', 'setKeyword', 'setQuery']),
+        ...mapMutations(['setShareInfo', 'setCollectFlag', 'setKeyword']),
         getGoods() {
             let { op } = this, { userNo } = this.user;
-            getGoods({ ...op, userNo }).then(res => {
+            getGoods({ id: op.id || op.scene, userNo }).then(res => {
                 res = res || {};
                 for (let k in res)
                     if (k.match(/imgInfo/gi))
                         res[k] = JSON.parse(res[k] || '[]')
+                // res.imgInfo = [...(res.imgInfo||[]),...(res.showImgInfo||[])]
                 this.data = res;
                 this.collectFlag = this.data.scNum
-                this.setQuery()
             })
         },
         getProgress() {
             let { op, filter } = this, { userNo } = this.user;
-            getProgress({ goodId: op.id, userNo, ...filter }).then(res => {
+            getProgress({ goodId: op.id || op.scene, userNo, ...filter }).then(res => {
                 let { list, lastPage } = res
                 this.lastPage = lastPage || 1
                 list = list || [];
@@ -261,7 +275,7 @@ export default {
                 if (code == 200) {
                     this.data.scNum = !scNum ? 1 : 0;
                     uni.showToast({
-                        title: `${scNum?'取消收藏':'添加收藏'}`,
+                        title: `${scNum?'取消收藏':'收藏成功'}`,
                         icon: 'none'
                     })
                 }
@@ -311,6 +325,14 @@ export default {
             this.$nextTick(() => {
                 uni.navigateTo({ url: `/pages/search/result?${flag}=${keyword}` })
             })
+        },
+        toAuth() {
+            uni.showToast({
+                title: '请先授权登录',
+                icon: 'none',
+                mask: true
+            })
+            timer = setTimeout(() => uni.navigateTo({ url: '/pages/login/index' }), 2000)
         }
     }
 }
@@ -445,16 +467,26 @@ swiper {
     height: 100vh;
     background: rgba(0, 0, 0, .4);
     left: 0;
-    top: 101vh;
+    top: 0;
     z-index: 101;
+    transform: translateY(100%);
 
     &.show {
-        top: 0;
+        transform: translateY(0%);
     }
 
     &.hide {
-        top: 101vh;
+        transform: translateY(100%);
+        transition-delay: .15s;
     }
+
+    // &.show {
+    //     top: 0;
+    // }
+
+    // &.hide {
+    //     top: 101vh;
+    // }
 }
 
 .state-popup {
@@ -472,14 +504,14 @@ swiper {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
         transform-origin: center;
-        // transition: all .25s;
+        transition: all .25s;
     }
 
     &.hide {
         opacity: 0;
         transform: translate(-50%, -50%) scale(0);
         transform-origin: center;
-        // transition: all .25s;
+        transition: all .25s;
     }
 
     .close image {
@@ -518,17 +550,15 @@ swiper {
     width: 100vw;
     bottom: 0;
     left: 0;
-    transform: translateY(100%);
 
     &.show {
         transform: translateY(0%);
-        // transition: all .25s;
+        transition: all .2s;
     }
 
     &.hide {
-        transform: translateY(100%);
-        // transition: all .25s;
-
+        transform: translateY(120%);
+        transition: all .2s;
     }
 
     button {

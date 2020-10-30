@@ -4,30 +4,55 @@
         <image class="logo" mode="widthFix" src="../../static/logo@2x.png"></image>
         <view class="btn-block relative">
             <image class="btn-bg" src="../../static/kuang@2x.png" mode="widthFix"></image>
-            <button class="btn absolute flex align-items-center justify-content-center" open-type="getPhoneNumber" @getphonenumber="loginFun">微信授权登录</button>
+            <button :disabled="disabled" class="btn absolute flex align-items-center justify-content-center" open-type="getUserInfo" @getuserinfo="loginFun">微信授权登录</button>
         </view>
     </view>
 </template>
 <script>
 import { getToken } from '@/utils/request'
-import { getMblNoByWx } from '@/utils/api'
+import { updateUser } from '@/utils/api'
 import { mapGetters, mapMutations } from 'vuex'
 export default {
     name: 'detail',
+    computed: {
+        ...mapGetters(['user'])
+    },
+    data() {
+        return {
+            disabled: false
+        }
+    },
     methods: {
         ...mapMutations(['setToken', 'setUser']),
-        async loginFun(e) {
-            let { iv, encryptedData } = e.detail, { openid } = await getToken()
-            getMblNoByWx({ iv, openId: openid, data: encryptedData }).then(data => {
-                let { token, code } = data;
-                if (code == 200) {
-                    this.setToken(token || '')
-                    this.setUser(data || {})
-                    uni.navigateBack()
-                }
-                console.log(data)
-            })
-            // console.log(e)
+        loginFun(e) {
+            let { userInfo } = e.detail;
+            if (!userInfo) {
+                uni.showToast({
+                    title: '授权失败,请重新授权',
+                    icon: 'none'
+                })
+            } else {
+                let { nickName } = userInfo, { user } = this, params = { ...user, nickName };
+                this.disabled = true
+                updateUser(params).then(res => {
+                    this.disabled = false;
+                    if(res.code == 200){
+                        this.setUser(res||{})
+                        uni.navigateBack()
+                    }
+                })
+            }
+
+            // let { iv, encryptedData } = e.detail, { openid } = await getToken()
+            // getMblNoByWx({ iv, openId: openid, data: encryptedData }).then(data => {
+            //     let { token, code } = data;
+            //     if (code == 200) {
+            //         this.setToken(token || '')
+            //         this.setUser(data || {})
+            //         uni.navigateBack()
+            //     }
+            //     console.log(data)
+            // })
         }
     }
 }

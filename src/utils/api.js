@@ -5,5 +5,7 @@ module.exports = {
 	getGoods:(params)=>$http(`web/getGoodInfo`, params),
 	collect:(params, is_collect)=>$http(`bus/userFollow/${is_collect?'saveOrUpdate':'delete'}`, params),
 	collects:params=>$http(`web/getGoodScPage`, params),
-	getProgress:params=>$http(`web/getGoodSpeed`, params)
+	getProgress:params=>$http(`web/getGoodSpeed`, params),
+	getQrCode:goodId=>$http(`bus/wx/createQrCode/${goodId}`),
+	updateUser:params=>$http(`bus/user/saveOrUpdate`, params)
 }
