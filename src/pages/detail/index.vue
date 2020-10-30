@@ -146,7 +146,8 @@ export default {
             data: {},
             progress: [],
             item: {},
-            collectFlag: false
+            collectFlag: false,
+            callFlag:false
         }
     },
     computed: {
@@ -270,7 +271,11 @@ export default {
             })
         },
         collectFun(userNo, goodId, scNum) {
+            let { callFlag } = this;
+            if(callFlag) return
+            this.callFlag = true
             collect({ userNo, goodId }, !scNum).then(res => {
+                this.callFlag = false
                 let { code } = res;
                 if (code == 200) {
                     this.data.scNum = !scNum ? 1 : 0;

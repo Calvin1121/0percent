@@ -49,6 +49,7 @@ export default {
         collectFlag(n) {
             let { isAll } = this;
             if (!isAll && !!n) {
+                this.isRefresh = true
                 this.filter = JSON.parse(JSON.stringify(filter))
                 this.setCollectFlag()
             }

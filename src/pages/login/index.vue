@@ -34,12 +34,14 @@ export default {
             } else {
                 let { nickName } = userInfo, { user } = this, params = { ...user, nickName };
                 this.disabled = true
-                updateUser(params).then(res => {
-                    this.disabled = false;
-                    if(res.code == 200){
-                        this.setUser(res||{})
-                        uni.navigateBack()
-                    }
+                getToken().then(() => {
+                    updateUser(params).then(res => {
+                        this.disabled = false;
+                        if (res.code == 200) {
+                            this.setUser(res || {})
+                            uni.navigateBack()
+                        }
+                    })
                 })
             }
 

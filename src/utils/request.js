@@ -10,6 +10,7 @@ fly.config = tokenFly.config = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
 }
+var timer
 const getToken = (request) => {
     uni.showLoading({ title: '加载中' })
     return new Promise(resolve => {
@@ -26,7 +27,7 @@ const getToken = (request) => {
                     }) : null
                     if (code == 200) {
                         let { openid, token } = data;
-                        request.headers["token"] = token
+                        request ? (request.headers["token"] = token) : null
                         store.commit('setToken', token || '')
                         store.commit('setUser', data)
                         store.commit('setOpenId', openid || '')
@@ -51,19 +52,28 @@ fly.interceptors.request.use(request => {
 })
 const $http = (url, params = {}, method = 'POST', no_loading = false) => {
     if (!no_loading) uni.showLoading({ title: '加载中' })
-    for(let k in params) if(!params[k]) delete params[k]
+    for (let k in params)
+        if (!params[k] || k.match(/createTime|loginTime/gi)) delete params[k]
     return new Promise((resolve, reject) => {
         fly.request(url, params, { method }).then(res => {
             let { code, message, data } = res.data || {};
             if (code != 200 && message) {
                 uni.showToast({
                     title: message || '网络异常',
-                    icon: 'none'
+                    icon: 'none',
+                    mask: code == 401,
+                    duration:1500
                 })
             }
-            if(data) data.code = code
+            if (code == 401) {
+                clearTimeout(timer)
+                timer = setTimeout(() => uni.navigateTo({
+                    url: '/pages/login/index'
+                }), 1500)
+            }
+            if (url.match(/bus\/user\/saveOrUpdat/gi) && code == 200) data.code = code
             uni.stopPullDownRefresh()
-        if (!no_loading) uni.hideLoading()
+            if (!no_loading) uni.hideLoading()
             resolve(data || res.data || {})
         }).catch(error => {
             if (!no_loading) uni.hideLoading()
