@@ -20,7 +20,7 @@ export default {
         return {
             poster: '',
             title: '',
-            code:''
+            code: ''
         }
     },
     watch: {
@@ -28,12 +28,13 @@ export default {
             handler(n, o) {
                 if (n.id) {
                     this.$nextTick(async () => {
-                        let {qrCode, id} = this.shareInfo;
-                        if(!qrCode){
+                        let { qrCode, id } = this.shareInfo;
+                        qrCode = ''
+                        if (!qrCode) {
                             let { url } = await getQrCode(n.id);
                             qrCode = url;
-                        }else{
-                            qrCode =  `${API_URL}${qrCode}`
+                        } else {
+                            qrCode = `${API_URL}${qrCode}`
                         }
                         this.code = qrCode;
                         this.draw()
@@ -45,11 +46,13 @@ export default {
         },
         title(title, o) {
             if (title) {
-                uni.showToast({
-                    title,
-                    icon: 'none'
+                this.$nextTick(() => {
+                    uni.showToast({
+                        title,
+                        icon: 'none'
+                    })
+                    this.title = ''
                 })
-                this.title = ''
             }
         }
     },
@@ -58,16 +61,6 @@ export default {
     },
     onUnload() {
         this.setShareInfo()
-    },
-    async created(){
-        // let {qrCode, id} = this.shareInfo;
-        // if(!qrCode){
-        //     let { url } = await getQrCode(id);
-        //     qrCode = url;
-        // }
-        // this.code = qrCode;
-        // this.draw()
-
     },
     methods: {
         ...mapMutations(['setShareInfo']),
@@ -136,7 +129,7 @@ export default {
             })
         },
         async draw() {
-            uni.showLoading({title:'海报生成中'})
+            uni.showLoading({ title: '海报生成中' })
             let ctx = uni.createCanvasContext("poster"),
                 { shareInfo } = this;
             let img = await this.getPic((shareInfo.showImgInfo[0] || {}).img)
@@ -147,7 +140,7 @@ export default {
             ctx.setFillStyle("#ffffff")
             ctx.rect(0, 0, uni.upx2px(664), uni.upx2px(1030))
             ctx.fill()
-            ctx.drawImage(img, 0, 0, uni.upx2px(664), uni.upx2px(440));
+            ctx.drawImage(img, uni.upx2px(10), uni.upx2px(10), uni.upx2px(644), uni.upx2px(430));
             ctx.save();
             ctx.beginPath();
             ctx.fillStyle = "#342369";
@@ -158,10 +151,6 @@ export default {
             for (let k = 0; k < strs.length; k++) {
                 ctx.fillText(strs[k], uni.upx2px(28), uni.upx2px(575 + k * 40));
             }
-            // ctx.font = `normal regular ${uni.upx2px(30)}px sans-serif`;
-            // ctx.fillText('crp keycaps', uni.upx2px(28), uni.upx2px(560));
-            // ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
-            // ctx.fillText('MDA高度键帽，由MELGEEK制造', uni.upx2px(28), uni.upx2px(610));
             ctx.font = `normal bold ${uni.upx2px(40)}px sans-serif`;
             ctx.fillText('长按识别小程序', uni.upx2px(36), uni.upx2px(860));
             ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
@@ -169,15 +158,15 @@ export default {
             ctx.beginPath()
             ctx.setStrokeStyle('#cccccc');
             ctx.setLineWidth(uni.upx2px(2));
-            ctx.moveTo(0, uni.upx2px(720))
-            ctx.lineTo(uni.upx2px(664), uni.upx2px(720))
+            ctx.moveTo(uni.upx2px(10), uni.upx2px(720))
+            ctx.lineTo(uni.upx2px(654), uni.upx2px(720))
             ctx.setLineDash([2, 4])
             ctx.stroke()
             ctx.beginPath()
             ctx.arc(uni.upx2px(516), uni.upx2px(874), uni.upx2px(96), 0, Math.PI * 2);
             ctx.clip();
             let code = await this.getPic(this.code)
-             if (!code) {
+            if (!code) {
                 this.title = '海报生成失败'
                 return
             }

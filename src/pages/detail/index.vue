@@ -4,32 +4,29 @@
         <block v-if="data.id">
             <view class="banner relative" v-if="data.imgInfo.length">
                 <view class="indicators bg-999 color-fff font24 absolute">{{current+1}}/{{data.imgInfo.length}}</view>
-                <swiper circular @change="swiperChange($event, 'current')">
+                <swiper duration="100" circular @change="swiperChange($event, 'current')">
                     <swiper-item v-for="(item, index) in data.imgInfo" :key="index">
-                        <image class="bg-f1f1f1" :src="item.img" mode="aspectFill"></image>
+                        <image class="bg-f1f1f1" :src="item.img" mode="aspectFill" @click.stop="preView(item.img)"></image>
                     </swiper-item>
                 </swiper>
             </view>
-            <view class="base-info p-l-20 p-r-20 p-t-20 p-b-20">
-                <view class="title share-in flex align-items-center justify-content-space-between">
-                    <view class="title color-342369 fw-6 font40">{{data.goodName||''}}</view>
-                    <view class="share-in flex align-items-center">
-                        <view class="share flex align-items-center justify-content-center p-r-15 p-t-15 p-b-15" @tap="this.type='share';this.backdrop=true">
-                            <image src="../../static/fenxiang@2x.png" mode="widthFix"></image>
-                        </view>
-                        <view class="in flex align-items-center justify-content-center p-l-15 p-t-15 p-b-15" @tap="user.nickName?collectIt():toAuth()">
-                            <image :src="`/static/${data.scNum?'yiguanzhu@2x':'guanzhu@2x'}.png`" mode="widthFix"></image>
-                        </view>
+            <view class="base-info p-l-20 p-r-20 p-t-20 p-b-20 overflow-hidden">
+                <view class="share-in m-l-20">
+                    <view class="icons flex align-items-center flex-column relative">
+                        <view class="select-block absolute" v-if="guide"></view>
+                        <image :style="{'zIndex':guide?121:0}" :src="`/static/${data.scNum && !guide?'yiguanzhu@2x':'guanzhu@2x'}.png`" mode="widthFix" class="relative" @tap="user.nickName?collectIt():toAuth()"></image>
+                        <image src="../../static/fenxiang@2x.png" mode="widthFix" class="m-t-30" @tap="this.type='share';this.backdrop=true"></image>
                     </view>
                 </view>
-                <view class="desc font28 color-342369">{{data.info||''}}</view>
-                <view class="tags flex flex-wrap p-t-20" v-if="data.keyWordNames.length">
+                <view class="title color-342369 fw-7" style="font-size: 106upx">{{data.goodName||''}}</view>
+                <view class="desc font32 color-342369 break-all">{{data.info||''}}</view>
+                <view class="tags p-t-20" v-if="data.keyWordNames.length">
                     <view class="tag font24 color-6448B5 m-r-20 m-t-20" v-for="(item, index) in data.keyWordNames" :key="index" @click.stop="filterIt(item, 'keyWordName')">{{`#${item}`}}</view>
                 </view>
             </view>
             <view class="split bg-f8f8f8"></view>
             <view class="info-detail border">
-                <view class="info-main overflow-hidden" :style="{height:`${84*(toggle?5:1)}rpx`,transition:'all .25s'}">
+                <view class="info-main overflow-hidden" :style="{height:`${70*(toggle?5:0)}rpx`,transition:'all .25s'}">
                     <view class="row flex align-items-center">
                         <view class="label">品牌</view>
                         <view class="value flex-1 flex align-items-center justify-content-flex-end" v-if="data.businessName">
@@ -58,13 +55,13 @@
                     </view>
                 </view>
                 <view class="toggle-block flex align-items-center justify-content-center">
-                    <view class="icon-block p-b-20 p-l-20 p-r-20" :class="{'up':toggle}" @click.stop="this.toggle = !this.toggle">
+                    <view class="icon-block p-b-20 p-l-20 p-r-20 p-t-20" :class="{'up':toggle}" @click.stop="this.toggle = !this.toggle">
                         <image class="toggle-icon" src="../../static/toggle.png" mode="widthFix"></image>
                     </view>
                 </view>
             </view>
             <view class="state-block flex flex-column align-items-center p-t-40 p-l-20 p-r-20">
-                <view class="button flex color-fff align-items-center justify-content-center m-b-50" :class="[{'bg-6448B5 font32':!data.goodStatus.match(/ic/gi),'bg-FD3691 font36':data.goodStatus.match(/ic/gi)}]" @click.stop="handler()" v-if="data.goodStatus">{{data.goodStatus.match(/gb/gi)?'购买链接':data.goodStatus}}</view>
+                <view :class="[{'color-6448B5':goodStatus=='正在制作','color-999':goodStatus.match(/已完成|终止/gi),'color-FD3691':goodStatus.match(/ic/gi),'color-fff bg-6448B5':goodStatus=='购买链接'}]" class="button flex font34 align-items-center justify-content-center m-b-50" @click.stop="handler()" v-if="data.goodStatus">{{goodStatus}}</view>
                 <view class="states">
                     <block v-for="(item, index) in progress" :key="index">
                         <view class="state m-b-20 flex" @tap="this.type='state';this.backdrop=true;this.item = item">
@@ -77,7 +74,7 @@
                             </block>
                             <view class="main">
                                 <view class="title font36 fw-5 color-342369 line-clamp-1" :class="[{'bg-f1f1f1 color-342369':index < progress.length-1,'bg-6448B5 color-27F2C6':index == progress.length-1}]">{{item.speedTitle}}</view>
-                                <view class="desc m-t-10 font24 color-342369">{{item.speedInfo}}</view>
+                                <view class="desc m-t-10 font30 color-342369 line-clamp-2">{{item.speedInfo}}</view>
                             </view>
                         </view>
                     </block>
@@ -87,7 +84,7 @@
             <view class="backdrop" :class="{show:backdrop,hide:!backdrop}" @touchmove.stop.prevent @click.stop="this.backdrop = false">
                 <view class="state-popup bg-fff" :class="{show:backdrop,hide:!backdrop,'visibility-hidden':type=='share' || !type}" @click.stop>
                     <view class="title-close flex align-items-center">
-                        <view class="title flex-1 line-clamp-1 color-342369 font36 fw-5">延期公告</view>
+                        <view class="title flex-1 line-clamp-1 color-342369 font36 fw-5">{{item.speedTitle}}</view>
                         <view class="close flex align-items-center justify-content-center" @click.stop="this.backdrop = false">
                             <image src="../../static/guanbi@2x.png" mode="widthFix"></image>
                         </view>
@@ -95,7 +92,7 @@
                     <view class="state-swiper relative m-t-25">
                         <image class="icon absolute" src="/static/play.png" @click.stop="playIt(item.stateIndex||0)" v-if="item.imgInfo[item.stateIndex||0].type == 'video' && !item.imgInfo[item.stateIndex||0].is_play"></image>
                         <view class="indicators bg-999 color-fff font24 absolute">{{(item.stateIndex||0)+1}}/{{item.imgInfo.length}}</view>
-                        <swiper circular @change="swiperChange($event, 'stateIndex', item)">
+                        <swiper duration="100" circular @change="swiperChange($event, 'stateIndex', item)">
                             <swiper-item v-for="(v, i) in item.imgInfo" :key="i">
                                 <block v-if="v.type == 'img'">
                                     <image class="bg-f1f1f1" :src="v.url" mode="aspectFill"></image>
@@ -107,7 +104,7 @@
                         </swiper>
                     </view>
                     <view class="date bg-f1f1f1 color-342369 text-center font22 m-t-10">此消息发布于：{{item.createTime}}</view>
-                    <view class="text color-342369 font28 m-t-25">
+                    <view class="text color-342369 font30 m-t-25">
                         {{item.speedInfo}}
                     </view>
                 </view>
@@ -121,6 +118,20 @@
                     <view class="ipx-holder" v-if="isIPX"></view>
                 </view>
             </view>
+            <view class="backdrop guide" :class="{show:guide,hide:!guide}" @touchmove.stop.prevent>
+                <image class="plane absolute" src="../../static/plane.png" mode="widthFix" :style="{'top':`${isIPX?840:800}rpx`}"></image>
+                <image class="line absolute" src="../../static/line.png" mode="widthFix" :style="{'top':`${isIPX?900:840}rpx`}"></image>
+                <view class="guide-text absolute font30 color-fff fw-6" :style="{'top':`${isIPX?995:935}rpx`}">
+                    <text decode space="nbsp">点击关注后\n第一时间收到产品更新提醒哦~</text>
+                </view>
+                <view @click="setGuide(false)" :style="{bottom:`${isIPX?280:150}rpx`}" class="button font30 color-fff absolute flex align-items-center justify-content-center">我知道了</view>
+            </view>
+            <view class="toast backdrop" :class="{show:toast,hide:!toast}" @touchmove.stop.prevent>
+                <view class="toast-block flex align-items-center absolute font40 color-fff">
+                    <image :src="`../../static/${!data.scNum?'un':''}follow.png`" mode="widthFix" class="m-r-20"></image>
+                    <view>{{!data.scNum?'取消关注':'已关注'}}</view>
+                </view>
+            </view>
         </block>
     </view>
 </template>
@@ -131,7 +142,7 @@ const filter = {
     pageSize: 15,
     pageNo: 1
 }
-var timer;
+var timer, toastTimer;
 export default {
     name: 'detail',
     data() {
@@ -147,11 +158,32 @@ export default {
             progress: [],
             item: {},
             collectFlag: false,
-            callFlag:false
+            callFlag: false,
+            toast: false
         }
     },
     computed: {
-        ...mapGetters(['isIPX', 'user', 'shareInfo'])
+        ...mapGetters(['isIPX', 'user', 'shareInfo', 'guide']),
+        goodStatus() {
+            let { goodStatus, goodState } = this.data;
+            if (!goodStatus) return
+            if (goodState == 1) {
+                if (goodStatus.match(/gb/gi)) {
+                    return '购买链接'
+                } else if (goodStatus.match(/截团/gi)) {
+                    return '正在制作'
+                } else if (goodStatus.match(/已发货/gi)) {
+                    return '已完成'
+                } else {
+                    return goodStatus
+                }
+            } else if (goodState == 2) {
+                return '已完成'
+            } else if (goodState == 3) {
+                return '终止'
+            }
+
+        }
     },
     watch: {
         backdrop(n, o) {
@@ -194,7 +226,14 @@ export default {
         if (filter.pageNo < lastPage) filter.pageNo += 1
     },
     methods: {
-        ...mapMutations(['setShareInfo', 'setCollectFlag', 'setKeyword']),
+        ...mapMutations(['setShareInfo', 'setCollectFlag', 'setKeyword', 'setGuide']),
+        preView(current) {
+            let { imgInfo } = this.data, urls = (imgInfo || []).map(v => v.img)
+            uni.previewImage({
+                current,
+                urls
+            })
+        },
         getGoods() {
             let { op } = this, { userNo } = this.user;
             getGoods({ id: op.id || op.scene, userNo }).then(res => {
@@ -202,7 +241,7 @@ export default {
                 for (let k in res)
                     if (k.match(/imgInfo/gi))
                         res[k] = JSON.parse(res[k] || '[]')
-                // res.imgInfo = [...(res.imgInfo||[]),...(res.showImgInfo||[])]
+                res.imgInfo = [...(res.imgInfo || []), ...(res.showImgInfo || [])]
                 this.data = res;
                 this.collectFlag = this.data.scNum
             })
@@ -233,7 +272,8 @@ export default {
             uni.navigateTo({ url: './poster', complete: () => this.backdrop = false })
         },
         collectIt() {
-            let { userNo } = this.user, { id } = this.data, { scNum } = this.data
+            let { userNo } = this.user, { scNum, id } = this.data, { guide } = this;
+            if (guide) return
             if (scNum) {
                 this.collectFun(userNo, id, scNum);
                 return
@@ -243,9 +283,9 @@ export default {
                 success: setting => {
                     if (setting.subscriptionsSetting.mainSwitch) {
                         uni.requestSubscribeMessage({
-                            tmplIds: ['3_rkWnbikNVYZ1ut7oD_lo9U_Z6Bh2fHJqUjpFqCUGk'],
+                            tmplIds: ['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA', 'EBwr6GlwRMcttcVP3fe3WR6-A3Qv3X3j-eBlfaUUY4Y'],
                             success: res => {
-                                if (res['3_rkWnbikNVYZ1ut7oD_lo9U_Z6Bh2fHJqUjpFqCUGk'] == 'reject') {
+                                if (res['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA'] == 'reject') {
                                     uni.showToast({
                                         title: '您已取消授权',
                                         icon: 'none'
@@ -272,17 +312,23 @@ export default {
         },
         collectFun(userNo, goodId, scNum) {
             let { callFlag } = this;
-            if(callFlag) return
+            if (callFlag) return
             this.callFlag = true
+            clearTimeout(toastTimer)
             collect({ userNo, goodId }, !scNum).then(res => {
                 this.callFlag = false
                 let { code } = res;
                 if (code == 200) {
                     this.data.scNum = !scNum ? 1 : 0;
-                    uni.showToast({
-                        title: `${scNum?'取消收藏':'收藏成功'}`,
-                        icon: 'none'
-                    })
+                    this.toast = true
+                    toastTimer = setTimeout(() => {
+                        this.toast = false
+                    }, 2000)
+                    // uni.showToast({
+                    //     title: `${scNum?'取消收藏':'收藏成功'}`,
+                    //     image: '../../static/all.png',
+                    //     mask: true
+                    // })
                 }
             })
         },
@@ -366,8 +412,29 @@ swiper {
 }
 
 .share-in {
+    float: right;
+    clear: both;
+
+    .select-block {
+        width: 206upx;
+        height: 152upx;
+        border-radius: 50%;
+        background: #fff;
+        z-index: 111;
+        top: -16upx;
+    }
+
     image {
-        width: 36upx;
+        width: 118upx;
+    }
+
+    .is-guide {
+        width: 90upx;
+        height: 100%;
+        border-radius: 50%;
+        background: #fff;
+        z-index: 111;
+        right: -17upx
     }
 }
 
@@ -375,6 +442,7 @@ swiper {
     background: rgba(189, 174, 235, .2);
     padding: 4upx 20upx;
     border-radius: 4upx;
+    display: inline-block;
 }
 
 .split {
@@ -382,15 +450,15 @@ swiper {
 }
 
 .row {
-    padding: 20upx;
+    padding: 15upx 20upx;
     @extend .font28;
     @extend .color-342369;
 
     .info-tag {
         border-radius: 25upx;
         border: 1upx solid rgba(100, 72, 181, .2);
-        font: 24upx;
-        padding: 2upx 16upx;
+        font-size: 24upx;
+        padding: 4upx 16upx;
         margin-left: 20upx;
 
         &.default {
@@ -425,16 +493,6 @@ swiper {
     width: 234upx;
     height: 40upx;
     border-radius: 50upx;
-
-    // &.ic,&.IC {
-    //     background: #FD3691;
-    //     font-size: 36upx;
-    // }
-
-    // &.buy {
-    //     background: #6448B5;
-    //     font-size: 32upx;
-    // }
 }
 
 .state {
@@ -476,6 +534,52 @@ swiper {
     z-index: 101;
     transform: translateY(100%);
 
+    &.toast {
+        background: rgba(0, 0, 0, 0);
+
+        .toast-block {
+            padding: 20upx 56upx;
+            border-radius: 20upx;
+            background: rgba(0, 0, 0, .5);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+
+            image {
+                width: 80upx;
+            }
+        }
+    }
+
+    &.guide {
+
+        .plane {
+            width: 65upx;
+            // top: 780upx;
+            right: 135upx;
+        }
+
+        .line {
+            width: 102upx;
+            top: 840upx;
+            right: 190upx;
+        }
+
+        .guide-text {
+            right: 100upx;
+            top: 935upx;
+        }
+
+        .button {
+            width: 284upx;
+            height: 60upx;
+            border-radius: 34upx;
+            border: 2upx solid #FFFFFF;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+
     &.show {
         transform: translateY(0%);
     }
@@ -484,14 +588,6 @@ swiper {
         transform: translateY(100%);
         transition-delay: .15s;
     }
-
-    // &.show {
-    //     top: 0;
-    // }
-
-    // &.hide {
-    //     top: 101vh;
-    // }
 }
 
 .state-popup {
@@ -502,6 +598,7 @@ swiper {
     position: absolute;
     left: 50%;
     top: 50%;
+    opacity: 0;
     transform: translate(-50%, -50%) scale(0);
     transform-origin: center;
 
@@ -514,8 +611,8 @@ swiper {
 
     &.hide {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0);
-        transform-origin: center;
+        // transform: translate(-50%, -50%) scale(0);
+        // transform-origin: center;
         transition: all .25s;
     }
 

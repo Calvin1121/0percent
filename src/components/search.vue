@@ -102,7 +102,7 @@ export default {
     height: 60upx;
 
     .icon {
-        width: 30upx;
+        width: 40upx;
     }
 }
 </style>

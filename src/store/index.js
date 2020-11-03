@@ -30,6 +30,7 @@ const store = new Vuex.Store({
         shareInfo: '',
         user: {},
         collect: false,
+        guide: true,
     },
     getters: {
         isIPX: state => state.isIPX,
@@ -43,6 +44,7 @@ const store = new Vuex.Store({
         shareInfo: state => state.shareInfo,
         user: state => state.user,
         collectFlag: state => state.collectFlag,
+        guide: state => state.guide,
     },
     mutations: {
         setIsIPX(state, isIPX = false) {
@@ -78,6 +80,9 @@ const store = new Vuex.Store({
         setCollectFlag(state, collectFlag = false) {
             state.collectFlag = collectFlag
         },
+        setGuide(state, guide){
+            state.guide = guide
+        }
     },
     actions: {
         actHistory({ commit, getters }, keyword) {
