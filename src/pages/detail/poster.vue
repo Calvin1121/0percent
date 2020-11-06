@@ -111,6 +111,8 @@ export default {
                     success: success => this.title = '保存成功',
                     fail: fail => this.title = '保存失败'
                 })
+            }else {
+                this.title = '您已取消授权'
             }
         },
         getPic(url) {

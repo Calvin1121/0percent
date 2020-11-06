@@ -5,7 +5,7 @@
         </view>
         <input type="text" class="color-342369 flex-1" :disabled="disabled" v-if="disabled" />
         <input type="text" class="color-342369 flex-1" v-model="value" placeholder-style="color:#342369" @confirm="confirm" :placeholder="placeholder" @focus="setFocus(true)" @blur="setFocus()" :focus="focus" v-else />
-        <view class="cancle-block p-l-30 p-r-30 flex align-items-center justify-content-center" v-if="value && !disabled" @tap="cancel">
+        <view class="cancle-block p-l-30 p-r-30 flex align-items-center justify-content-center" :class="[{'visibility-hidden':!(value && !disabled)}]" @tap="cancel">
             <image src="../static/guanbi@2x.png" mode="widthFix" class="icon"></image>
         </view>
     </view>
