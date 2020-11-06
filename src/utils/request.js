@@ -61,26 +61,21 @@ const $http = (url, params = {}, method = 'POST', no_loading = false) => {
                 uni.showToast({
                     title: message || '网络异常',
                     icon: 'none',
-                    duration:2000
+                    duration: 2000
                 })
             }
             if (code == 401) {
                 uni.navigateTo({
                     url: '/pages/login/index'
                 })
-                // clearTimeout(timer)
-                // timer = setTimeout(() => uni.navigateTo({
-                //     url: '/pages/login/index'
-                // }), 1500)
             }
             if (url.match(/bus\/user\/saveOrUpdat/gi) && code == 200) data.code = code
-            uni.stopPullDownRefresh()
-            if (!no_loading) uni.hideLoading()
             resolve(data || res.data || {})
         }).catch(error => {
-            if (!no_loading) uni.hideLoading()
-            uni.stopPullDownRefresh()
             reject(error)
+        }).finally(() => {
+            uni.stopPullDownRefresh()
+            if (!no_loading) uni.hideLoading()
         })
     })
 }

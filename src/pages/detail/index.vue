@@ -167,7 +167,7 @@ export default {
             collectFlag: false,
             callFlag: false,
             toast: false,
-            preview:false
+            preview: false
         }
     },
     computed: {
@@ -207,11 +207,11 @@ export default {
         filter(n) {
             this.getProgress()
         },
-        shareInfo(n, o) {
+        async shareInfo(n, o) {
             let { data } = this;
             if (!n.id && !data.qrCode) {
-                this.getGoods()
-                this.getProgress()
+                await this.getGoods()
+                await this.getProgress()
             }
         }
     },
@@ -221,10 +221,10 @@ export default {
             title: this.data.goodName
         }
     },
-    onLoad(op) {
+    async onLoad(op) {
         this.op = op
-        this.getGoods()
-        this.getProgress()
+        await this.getGoods()
+        await this.getProgress()
     },
     onUnload() {
         this.hasChanged()
@@ -244,31 +244,37 @@ export default {
             // let { banner } = this;
             uni.previewImage({
                 current,
-                urls:this.banner.map(v=>v.img)
+                urls: this.banner.map(v => v.img)
             })
         },
         getGoods() {
             let { op } = this, { userNo } = this.user;
-            getGoods({ id: op.id || op.scene, userNo }).then(res => {
-                res = res || {};
-                for (let k in res)
-                    if (k.match(/imgInfo/gi))
-                        res[k] = JSON.parse(res[k] || '[]')
-                // res.imgInfo = [...(res.imgInfo || []), ...(res.showImgInfo || [])]
-                this.data = res;
-                this.collectFlag = this.data.scNum
+            return new Promise(resolve => {
+                getGoods({ id: op.id || op.scene, userNo }).then(res => {
+                    res = res || {};
+                    for (let k in res)
+                        if (k.match(/imgInfo/gi))
+                            res[k] = JSON.parse(res[k] || '[]')
+                    // res.imgInfo = [...(res.imgInfo || []), ...(res.showImgInfo || [])]
+                    this.data = res;
+                    this.collectFlag = this.data.scNum
+                    resolve(true)
+                })
             })
         },
         getProgress() {
             let { op, filter } = this, { userNo } = this.user;
-            getProgress({ goodId: op.id || op.scene, userNo, ...filter }).then(res => {
-                let { list, lastPage } = res
-                this.lastPage = lastPage || 1
-                list = list || [];
-                for (let k of list) {
-                    if (k.imgInfo) k.imgInfo = JSON.parse(k.imgInfo || '[]')
-                }
-                this.progress = [...this.progress, ...list]
+            return new Promise(resolve => {
+                getProgress({ goodId: op.id || op.scene, userNo, ...filter }).then(res => {
+                    let { list, lastPage } = res
+                    this.lastPage = lastPage || 1
+                    list = list || [];
+                    for (let k of list) {
+                        if (k.imgInfo) k.imgInfo = JSON.parse(k.imgInfo || '[]')
+                    }
+                    this.progress = [...this.progress, ...list]
+                    resolve(true)
+                })
             })
         },
         swiperChange(e, flag, item) {
@@ -592,6 +598,7 @@ swiper {
             transform: translateX(-50%);
         }
     }
+
     // &.preview{
     //     swiper{
     //         width: 100vw;
