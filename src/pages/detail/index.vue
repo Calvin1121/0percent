@@ -283,7 +283,7 @@ export default {
                 success: setting => {
                     if (setting.subscriptionsSetting.mainSwitch) {
                         uni.requestSubscribeMessage({
-                            tmplIds: ['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA', 'EBwr6GlwRMcttcVP3fe3WR6-A3Qv3X3j-eBlfaUUY4Y'],
+                            tmplIds: ['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA', '7osSWuu1w3wuT3I06mFtr0d9azAmxUlKvzHSlxDNd2o','jAlc7YpsNUSYLYkqRXFgoWSFHJWQeTsqiilHjBfv0VE'],
                             success: res => {
                                 if (res['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA'] == 'reject') {
                                     uni.showToast({
@@ -491,7 +491,7 @@ swiper {
 
 .button {
     width: 234upx;
-    height: 40upx;
+    height: 56upx;
     border-radius: 50upx;
 }
 
