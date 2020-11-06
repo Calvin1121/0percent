@@ -57,19 +57,21 @@ const $http = (url, params = {}, method = 'POST', no_loading = false) => {
     return new Promise((resolve, reject) => {
         fly.request(url, params, { method }).then(res => {
             let { code, message, data } = res.data || {};
-            if (code != 200 && message) {
+            if (code != 200 && message && code != 401) {
                 uni.showToast({
                     title: message || '网络异常',
                     icon: 'none',
-                    mask: code == 401,
-                    duration:1500
+                    duration:2000
                 })
             }
             if (code == 401) {
-                clearTimeout(timer)
-                timer = setTimeout(() => uni.navigateTo({
+                uni.navigateTo({
                     url: '/pages/login/index'
-                }), 1500)
+                })
+                // clearTimeout(timer)
+                // timer = setTimeout(() => uni.navigateTo({
+                //     url: '/pages/login/index'
+                // }), 1500)
             }
             if (url.match(/bus\/user\/saveOrUpdat/gi) && code == 200) data.code = code
             uni.stopPullDownRefresh()

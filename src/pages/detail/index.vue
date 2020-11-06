@@ -2,16 +2,16 @@
     <view class="detail">
         <navbar />
         <block v-if="data.id">
-            <view class="banner relative" v-if="data.imgInfo.length">
-                <view class="indicators bg-999 color-fff font24 absolute">{{current+1}}/{{data.imgInfo.length}}</view>
+            <view class="banner relative" v-if="banner.length">
+                <view class="indicators bg-999 color-fff font24 absolute">{{current+1}}/{{banner.length}}</view>
                 <swiper duration="100" circular @change="swiperChange($event, 'current')">
-                    <swiper-item v-for="(item, index) in data.imgInfo" :key="index">
+                    <swiper-item v-for="(item, index) in banner" :key="index">
                         <image class="bg-f1f1f1" :src="item.img" mode="aspectFill" @click.stop="preView(item.img)"></image>
                     </swiper-item>
                 </swiper>
             </view>
-            <view class="base-info p-l-20 p-r-20 p-t-20 p-b-20 overflow-hidden">
-                <view class="share-in m-l-20">
+            <view class="base-info p-l-20 p-r-20 p-b-20 overflow-hidden">
+                <view class="share-in m-l-20 m-t-20">
                     <view class="icons flex align-items-center flex-column relative">
                         <view class="select-block absolute" v-if="guide"></view>
                         <image :style="{'zIndex':guide?121:0}" :src="`/static/${data.scNum && !guide?'yiguanzhu@2x':'guanzhu@2x'}.png`" mode="widthFix" class="relative" @tap="user.nickName?collectIt():toAuth()"></image>
@@ -20,7 +20,7 @@
                 </view>
                 <view class="title color-342369 fw-7" style="font-size: 106upx">{{data.goodName||''}}</view>
                 <view class="desc font32 color-342369 break-all">{{data.info||''}}</view>
-                <view class="tags p-t-20" v-if="data.keyWordNames.length">
+                <view class="tags" v-if="data.keyWordNames.length">
                     <view class="tag font24 color-6448B5 m-r-20 m-t-20" v-for="(item, index) in data.keyWordNames" :key="index" @click.stop="filterIt(item, 'keyWordName')">{{`#${item}`}}</view>
                 </view>
             </view>
@@ -54,8 +54,8 @@
                         <view class="value flex-1 text-right">{{data.platformName||''}}</view>
                     </view>
                 </view>
-                <view class="toggle-block flex align-items-center justify-content-center">
-                    <view class="icon-block p-b-20 p-l-20 p-r-20 p-t-20" :class="{'up':toggle}" @click.stop="this.toggle = !this.toggle">
+                <view class="toggle-block flex align-items-center justify-content-center" @click.stop="this.toggle = !this.toggle">
+                    <view class="icon-block p-b-20 p-l-20 p-r-20 p-t-20" :class="{'up':toggle}">
                         <image class="toggle-icon" src="../../static/toggle.png" mode="widthFix"></image>
                     </view>
                 </view>
@@ -132,6 +132,13 @@
                     <view>{{!data.scNum?'取消关注':'已关注'}}</view>
                 </view>
             </view>
+            <!-- <view class="preview backdrop" :class="{show:preview,hide:!preview}" @touchmove.stop.prevent>
+               <swiper>
+                   <swiper-item class="flex align-items-center jusify-contnet-center" v-for="(item, index) in banner" :key="index">
+                       <image :src="item.img" mode="widthFix"></image>
+                   </swiper-item>
+               </swiper>
+            </view> -->
         </block>
     </view>
 </template>
@@ -159,7 +166,8 @@ export default {
             item: {},
             collectFlag: false,
             callFlag: false,
-            toast: false
+            toast: false,
+            preview:false
         }
     },
     computed: {
@@ -182,7 +190,11 @@ export default {
             } else if (goodState == 3) {
                 return '终止'
             }
-
+        },
+        banner() {
+            let { imgInfo, showImgInfo } = this.data;
+            return [...(imgInfo || []), ...(showImgInfo || [])]
+            // return  [...(imgInfo || [])]
         }
     },
     watch: {
@@ -228,10 +240,11 @@ export default {
     methods: {
         ...mapMutations(['setShareInfo', 'setCollectFlag', 'setKeyword', 'setGuide']),
         preView(current) {
-            let { imgInfo } = this.data, urls = (imgInfo || []).map(v => v.img)
+            // this.preview = true
+            // let { banner } = this;
             uni.previewImage({
                 current,
-                urls
+                urls:this.banner.map(v=>v.img)
             })
         },
         getGoods() {
@@ -241,7 +254,7 @@ export default {
                 for (let k in res)
                     if (k.match(/imgInfo/gi))
                         res[k] = JSON.parse(res[k] || '[]')
-                res.imgInfo = [...(res.imgInfo || []), ...(res.showImgInfo || [])]
+                // res.imgInfo = [...(res.imgInfo || []), ...(res.showImgInfo || [])]
                 this.data = res;
                 this.collectFlag = this.data.scNum
             })
@@ -283,7 +296,7 @@ export default {
                 success: setting => {
                     if (setting.subscriptionsSetting.mainSwitch) {
                         uni.requestSubscribeMessage({
-                            tmplIds: ['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA', '7osSWuu1w3wuT3I06mFtr0d9azAmxUlKvzHSlxDNd2o','jAlc7YpsNUSYLYkqRXFgoWSFHJWQeTsqiilHjBfv0VE'],
+                            tmplIds: ['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA', '7osSWuu1w3wuT3I06mFtr0d9azAmxUlKvzHSlxDNd2o', 'jAlc7YpsNUSYLYkqRXFgoWSFHJWQeTsqiilHjBfv0VE'],
                             success: res => {
                                 if (res['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA'] == 'reject') {
                                     uni.showToast({
@@ -579,6 +592,15 @@ swiper {
             transform: translateX(-50%);
         }
     }
+    // &.preview{
+    //     swiper{
+    //         width: 100vw;
+    //         height: 100vh;
+    //         image{
+    //             width: 100%;
+    //         }
+    //     }
+    // }
 
     &.show {
         transform: translateY(0%);

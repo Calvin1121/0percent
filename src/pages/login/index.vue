@@ -22,6 +22,12 @@ export default {
             disabled: false
         }
     },
+    mounted() {
+        uni.showToast({
+            title: '暂未登录或token已经过期',
+            icon: 'none'
+        })
+    },
     methods: {
         ...mapMutations(['setToken', 'setUser']),
         loginFun(e) {

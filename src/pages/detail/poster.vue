@@ -28,8 +28,7 @@ export default {
             handler(n, o) {
                 if (n.id) {
                     this.$nextTick(async () => {
-                        let { qrCode, id } = this.shareInfo;
-                        qrCode = ''
+                        let { qrCode, id } = n;
                         if (!qrCode) {
                             let { url } = await getQrCode(n.id);
                             qrCode = url;
