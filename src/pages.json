@@ -4,8 +4,8 @@
             "path": "pages/index/index",
             "style":
             {
-                "disableScroll":false,
-                "enablePullDownRefresh": true
+                "disableScroll":true,
+                "enablePullDownRefresh": false
             }
         },
         {

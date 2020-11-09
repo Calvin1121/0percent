@@ -74,7 +74,6 @@ const $http = (url, params = {}, method = 'POST', no_loading = false) => {
         }).catch(error => {
             reject(error)
         }).finally(() => {
-            uni.stopPullDownRefresh()
             if (!no_loading) uni.hideLoading()
         })
     })

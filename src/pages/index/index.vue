@@ -1,32 +1,31 @@
 <template>
     <view class="content">
         <navbar fresh />
-        <view class="main flex flex-wrap justify-content-space-between p-l-20 p-r-20 p-t-40 p-b-40" v-if="list.length">
-            <view class="item-block m-b-30" v-for="(item, index) in list" :key="index">
-                <item :time="time" :item="item" />
+        <mescroll-uni ref="mescrollRef" @init="mescrollInit" @down="downCallback" @up="upCallback" :up="upOption" :top="`${navbar}px`" :bottom="`${tabbar}px`">
+            <view class="main flex flex-wrap justify-content-space-between p-l-20 p-r-20 p-t-10" v-if="list.length">
+                <view class="item-block m-t-30" v-for="(item, index) in list" :key="index">
+                    <item :time="time" :item="item" />
+                </view>
             </view>
-        </view>
-        <block v-if="lastPage && !list.length">
-            <empty />
-        </block>
+        </mescroll-uni>
         <tabbar />
     </view>
 </template>
 <script>
+import MescrollMixin from "@/components/mescroll-uni/mescroll-mixins.js";
+import MescrollUni from "@/components/mescroll-uni/mescroll-uni.vue";
 import { mapGetters, mapMutations } from 'vuex'
 import { getAllGoods, collects } from '@/utils/api'
-const filter = {
-    pageSize: 15,
-    pageNo: 1
-}
 export default {
+    mixins: [MescrollMixin],
+    components: {
+        MescrollUni
+    },
     data() {
         return {
             lastPage: 0,
-            filter: JSON.parse(JSON.stringify(filter)),
             list: [],
-            time:'',
-            isRefresh:false
+            time: '',
         }
     },
     computed: {
@@ -34,68 +33,43 @@ export default {
     },
     watch: {
         isAll() {
-            this.isRefresh = true
-            this.filter = JSON.parse(JSON.stringify(filter))
-            this.setCollectFlag()
-        },
-        filter: {
-            handler(n, o) {
-                let { isAll } = this;
-                isAll ? this.getAllGoods() : this.collects()
-            },
-            deep: true,
-            immediate: true
+            this.downCallback()
+            // this.setCollectFlag()
         },
         collectFlag(n) {
             let { isAll } = this;
             if (!isAll && !!n) {
-                this.isRefresh = true
-                this.filter = JSON.parse(JSON.stringify(filter))
-                this.setCollectFlag()
+                this.downCallback()
+                // this.setCollectFlag()
             }
-        }
-    },
-    onPullDownRefresh() {
-        this.isRefresh = true
-        this.filter = JSON.parse(JSON.stringify(filter))
-    },
-    onReachBottom() {
-        let { filter, lastPage } = this;
-        if (filter.pageNo < lastPage) {
-            filter.pageNo += 1
         }
     },
     methods: {
         ...mapMutations(['setCollectFlag']),
-        getAllGoods() {
-            let { filter } = this;
-            getAllGoods(filter).then(res => {
-                let { list, lastPage } = res.page||{}, {time} = res;
-                if(this.isRefresh){
-                    this.list = []
-                    this.lastPage = 0
-                }
-                this.isRefresh = false
-                this.time = time
-                this.list = [...this.list, ...(list || [])]
-                this.lastPage = lastPage || 1
-                // uni.stopPullDownRefresh()
-            })
+        downCallback() {
+            this.mescroll.resetUpScroll();
+            this.setCollectFlag()
         },
-        collects() {
-            let { filter } = this, { userNo } = this.user;
-            collects({ ...filter, userNo }).then(res => {
-                let { list, lastPage } = res.page||{}, {time} = res;
-                if(this.isRefresh){
-                    this.list = []
-                    this.lastPage = 0
-                }
-                this.isRefresh = false
-                this.time = time
-                this.list = [...this.list, ...(list || [])]
-                this.lastPage = lastPage || 1
-                // uni.stopPullDownRefresh()
-            })
+        upCallback(page) {
+            let { num, size } = page, { isAll } = this, { userNo } = this.user;
+            if (isAll) {
+                getAllGoods({ pageSize: size, pageNo: num }).then(res => {
+                    let { list, lastPage } = res.page || {}, { time } = res;
+                    if (num == 1) this.list = []
+                    this.time = time
+                    this.list = [...this.list, ...(list || [])]
+                    this.mescroll.endSuccess(list.length, num < lastPage);
+                })
+            } else {
+                collects({ pageSize: size, pageNo: num, userNo }).then(res => {
+                    let { list, lastPage } = res.page || {}, { time } = res;
+                    if (num == 1) this.list = []
+                    this.time = time
+                    this.list = [...this.list, ...(list || [])]
+                    this.mescroll.endSuccess(list.length, num < lastPage);
+                })
+            }
+
         }
     }
 }

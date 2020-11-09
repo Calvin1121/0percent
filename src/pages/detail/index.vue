@@ -61,7 +61,7 @@
                 </view>
             </view>
             <view class="state-block flex flex-column align-items-center p-t-40 p-l-20 p-r-20">
-                <view :class="[{'color-6448B5':goodStatus=='正在制作','color-999':goodStatus.match(/已完成|终止/gi),'color-FD3691':goodStatus.match(/ic/gi),'color-fff bg-6448B5':goodStatus=='购买链接'}]" class="button flex font34 align-items-center justify-content-center m-b-50" @click.stop="handler()" v-if="data.goodStatus">{{goodStatus}}</view>
+                <view :class="[{'color-6448B5':goodStatus=='正在制作','color-999':goodStatus.match(/已完成|终止/gi),'color-FD3691':goodStatus.match(/ic|new/gi),'color-fff bg-6448B5':goodStatus=='购买链接'}]" class="button flex font34 align-items-center justify-content-center m-b-50" @click.stop="handler()" v-if="goodStatus">{{goodStatus}}</view>
                 <view class="states">
                     <block v-for="(item, index) in progress" :key="index">
                         <view class="state m-b-20 flex" @tap="this.type='state';this.backdrop=true;this.item = item">
@@ -132,13 +132,6 @@
                     <view>{{!data.scNum?'取消关注':'已关注'}}</view>
                 </view>
             </view>
-            <!-- <view class="preview backdrop" :class="{show:preview,hide:!preview}" @touchmove.stop.prevent>
-               <swiper>
-                   <swiper-item class="flex align-items-center jusify-contnet-center" v-for="(item, index) in banner" :key="index">
-                       <image :src="item.img" mode="widthFix"></image>
-                   </swiper-item>
-               </swiper>
-            </view> -->
         </block>
     </view>
 </template>
@@ -173,11 +166,11 @@ export default {
     computed: {
         ...mapGetters(['isIPX', 'user', 'shareInfo', 'guide']),
         goodStatus() {
-            let { goodStatus, goodState } = this.data;
+            let { goodStatus, goodState, buyUrl } = this.data;
             if (!goodStatus) return
             if (goodState == 1) {
-                if (goodStatus.match(/gb/gi)) {
-                    return '购买链接'
+                if (goodStatus.match(/gb|ic|new/gi)) {
+                    return goodStatus.match(/gb/gi) || goodStatus.match(/ic|new/gi) && buyUrl?'购买链接':goodStatus
                 } else if (goodStatus.match(/截团/gi)) {
                     return '正在制作'
                 } else if (goodStatus.match(/已发货/gi)) {
@@ -193,8 +186,7 @@ export default {
         },
         banner() {
             let { imgInfo, showImgInfo } = this.data;
-            return [...(imgInfo || []), ...(showImgInfo || [])]
-            // return  [...(imgInfo || [])]
+            return imgInfo || []
         }
     },
     watch: {
@@ -240,8 +232,6 @@ export default {
     methods: {
         ...mapMutations(['setShareInfo', 'setCollectFlag', 'setKeyword', 'setGuide']),
         preView(current) {
-            // this.preview = true
-            // let { banner } = this;
             uni.previewImage({
                 current,
                 urls: this.banner.map(v => v.img)
@@ -255,7 +245,6 @@ export default {
                     for (let k in res)
                         if (k.match(/imgInfo/gi))
                             res[k] = JSON.parse(res[k] || '[]')
-                    // res.imgInfo = [...(res.imgInfo || []), ...(res.showImgInfo || [])]
                     this.data = res;
                     this.collectFlag = this.data.scNum
                     resolve(true)
@@ -343,11 +332,6 @@ export default {
                     toastTimer = setTimeout(() => {
                         this.toast = false
                     }, 2000)
-                    // uni.showToast({
-                    //     title: `${scNum?'取消收藏':'收藏成功'}`,
-                    //     image: '../../static/all.png',
-                    //     mask: true
-                    // })
                 }
             })
         },
@@ -376,9 +360,9 @@ export default {
         },
         handler() {
             let { goodStatus, buyUrl } = this.data;
-            if (goodStatus.match(/gb/gi) && buyUrl)
+            if (goodStatus.match(/gb|ic|new/gi) && buyUrl)
                 uni.showModal({
-                    content: `购买链接${buyUrl}`,
+                    content: `复制链接:${buyUrl}`,
                     showCancel: false,
                     confirmText: '立即复制',
                     success: res => {
