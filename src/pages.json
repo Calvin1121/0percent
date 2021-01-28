@@ -4,7 +4,7 @@
             "path": "pages/index/index",
             "style":
             {
-                "disableScroll":true,
+                "disableScroll": true,
                 "enablePullDownRefresh": false
             }
         },
@@ -13,7 +13,7 @@
             "style":
             {}
         },
-         {
+        {
             "path": "pages/search/result",
             "style":
             {}
@@ -27,22 +27,29 @@
             "path": "pages/detail/poster",
             "style":
             {
-                "disableScroll":true
+                "disableScroll": true
             }
         },
         {
             "path": "pages/login/index",
             "style":
             {
-                "disableScroll":true
+                "disableScroll": true
             }
         }
     ],
+    "permission":
+    {
+        "scope.userLocation":
+        {
+            "desc": "您的位置信息将用于小程序周边搜索及路径规划服务"
+        }
+    },
     "globalStyle":
     {
         "navigationStyle": "custom",
         "navigationBarBackgroundColor": "#F8F8F8",
         "backgroundColor": "#ffffff",
-        "backgroundTextStyle":"light"
+        "backgroundTextStyle": "light"
     }
 }

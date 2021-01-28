@@ -17,8 +17,6 @@ import search from '@/components/search.vue'
 Vue.component('search', search)
 import item from '@/components/item.vue'
 Vue.component('item', item)
-import empty from '@/components/empty.vue'
-Vue.component('empty', empty)
 App.mpType = 'app'
 
 const app = new Vue({

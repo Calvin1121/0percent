@@ -110,7 +110,7 @@ export default {
                     success: success => this.title = '保存成功',
                     fail: fail => this.title = '保存失败'
                 })
-            }else {
+            } else {
                 this.title = '您已取消授权'
             }
         },
@@ -148,10 +148,11 @@ export default {
             ctx.font = `normal bold ${uni.upx2px(36)}px sans-serif`;
             ctx.fillText(`${shareInfo.goodName}`, uni.upx2px(28), uni.upx2px(510));
             ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
-            let strs = this.strToArray(`${shareInfo.info||''}`)
-            for (let k = 0; k < strs.length; k++) {
-                ctx.fillText(strs[k], uni.upx2px(28), uni.upx2px(575 + k * 40));
-            }
+            // let strs = this.strToArray(`${shareInfo.info||''}`)
+            // for (let k = 0; k < strs.length; k++) {
+            //     ctx.fillText(strs[k], uni.upx2px(28), uni.upx2px(575 + k * 40));
+            // }
+            this.drawText(`${shareInfo.info||''}`, uni.upx2px(600), ctx)
             ctx.font = `normal bold ${uni.upx2px(40)}px sans-serif`;
             ctx.fillText('长按识别小程序', uni.upx2px(36), uni.upx2px(860));
             ctx.font = `normal regular ${uni.upx2px(28)}px sans-serif`;
@@ -186,7 +187,37 @@ export default {
                 })
             })
         },
-        strToArray(str, length = 21) {
+        drawText(str, canvasWidth, ctx, line = 3) {
+            let chr = str.split("") ,temp = "", row = [];
+            for (let a = 0; a < chr.length; a++) {
+                if (ctx.measureText(temp).width < canvasWidth) {
+                    temp += chr[a];
+                } else {
+                    a--; //这里添加了a-- 是为了防止字符丢失，效果图中有对比
+                    row.push(temp);
+                    temp = "";
+                }
+            }
+            row.push(temp);
+            if (row.length > line) {
+                let rowCut = row.slice(0, line), rowPart = rowCut[1], test = "", empty = [];
+                for (var a = 0; a < rowPart.length; a++) {
+                    if (ctx.measureText(test).width < canvasWidth) {
+                        test += rowPart[a];
+                    } else {
+                        break;
+                    }
+                }
+                empty.push(test);
+                let group = empty[0] + "..."
+                rowCut.splice((line - 1), (line - 1), group);
+                row = rowCut;
+            }
+            for (let b = 0; b < row.length; b++) {
+                ctx.fillText(row[b], uni.upx2px(28), uni.upx2px(575 + b * 40), canvasWidth);
+            }
+        },
+        strToArray(str, length = 22) {
             if (str.length < length) {
                 let rs = [];
                 rs[0] = str;
@@ -194,7 +225,6 @@ export default {
             } else {
                 let reg = new RegExp(`.{${length}}`, 'gi');
                 let rs = str.match(reg);
-                console.log()
                 rs.push(str.substring(rs.join('').length));
                 return rs || []
             }
@@ -212,7 +242,8 @@ export default {
     display: inline-block;
     width: 664upx;
     height: 1030upx;
-    border-radius: 20upx;
+    // border-radius: 20upx;
+    border-radius: 5upx;
     background: #fff;
     overflow: hidden;
 

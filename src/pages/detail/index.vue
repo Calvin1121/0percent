@@ -291,9 +291,10 @@ export default {
                 success: setting => {
                     if (setting.subscriptionsSetting.mainSwitch) {
                         uni.requestSubscribeMessage({
-                            tmplIds: ['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA', '7osSWuu1w3wuT3I06mFtr0d9azAmxUlKvzHSlxDNd2o', 'jAlc7YpsNUSYLYkqRXFgoWSFHJWQeTsqiilHjBfv0VE'],
+                            tmplIds: ['ui8Y31qLcJ5haO6HS797aN3OQbdF9xcBW4c73srRk8o', '7osSWuu1w3wuT3I06mFtr0d9azAmxUlKvzHSlxDNd2o', 'jAlc7YpsNUSYLYkqRXFgoWSFHJWQeTsqiilHjBfv0VE'],
                             success: res => {
-                                if (res['m2UtBYIjLc-W79yr9P1FCAJrHqOo9h7ah6RNO5cuImA'] == 'reject') {
+                                console.log(res)
+                                if (res['ui8Y31qLcJ5haO6HS797aN3OQbdF9xcBW4c73srRk8o'] == 'reject') {
                                     uni.showToast({
                                         title: '您已取消授权',
                                         icon: 'none'
@@ -359,12 +360,12 @@ export default {
             })
         },
         handler() {
-            let { goodStatus, buyUrl } = this.data;
-            if (goodStatus.match(/gb|ic|new/gi) && buyUrl)
+            let { goodStatus, buyUrl, platformInfo } = this.data;
+            if (goodStatus.match(/gb|ic|new/gi) && buyUrl && platformInfo)
                 uni.showModal({
-                    content: `复制链接:${buyUrl}`,
+                    content: platformInfo,
                     showCancel: false,
-                    confirmText: '立即复制',
+                    confirmText: '确认',
                     success: res => {
                         if (res.confirm) {
                             uni.setClipboardData({

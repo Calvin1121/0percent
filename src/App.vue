@@ -6,7 +6,7 @@ export default {
     },
     methods: {
         init() {
-            let ipx = !!((uni.getSystemInfoSync().model || '').match(/iphone x|iphone 11|iphon 12/gi))
+            let ipx = !!((uni.getSystemInfoSync().model || '').match(/iphone x|iphone 11|iphon 12|iphone13/gi))
             this.setIsIPX(ipx)
             this.setIsAll()
             this.setToken()

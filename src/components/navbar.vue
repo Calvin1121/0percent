@@ -2,14 +2,14 @@
     <view @touchmove.stop.prevent>
         <block v-for="(item, index) in [0,1]" :key="index">
             <view class="navbar flex align-items-center" :class="[{'fixed':index, 'relative':!index}]" :style="{height:`${status+navbar}px`,background:!index?'':background, paddingTop:`${status}px`}" v-if="index || (!index && fixed)">
-                <view class="back" :class="[{'visibility-hidden' :!index}]" @click.stop="tapBack">
+                <view class="back flex align-items-center p-l-20" :style="{width:`${navbar}px`,height:`${navbar}px`}" :class="[{'visibility-hidden' :!index}]" @click.stop="tapBack">
                     <image src="../static/back.png" mode="widthFix" class="back" v-if="canBack"></image>
                 </view>
                 <view :class="[{'visibility-hidden' :!index}]" class="title color-fff flex align-items-center justify-content-center">
                     <view class="titel-text" v-if="title">{{title}}</view>
                     <image src="../static/navabr.png" mode="widthFix" class="logo-icon" v-else></image>
                 </view>
-                <view :class="[{'visibility-hidden' :!index}]" class="back"></view>
+                <view :class="[{'visibility-hidden' :!index}]" class="back flex align-items-center p-r-20" :style="{width:`${navbar}px`,height:`${navbar}px`}"></view>
                 <view class="fresh absolute flex align-items-center justify-content-center" v-if="!index && fresh">
                     <button class="loading" loading></button>
                     <view class="color-999 font24 m-l-10">正在刷新</view>
@@ -76,8 +76,8 @@ export default {
 <style lang="scss" scoped>
 .navbar {
     width: 100vw;
-    padding-left: 20upx;
-    padding-right: 20upx;
+    // padding-left: 20upx;
+    // padding-right: 20upx;
 
     &.fixed {
         left: 0;
@@ -86,10 +86,9 @@ export default {
     }
 
     .back {
-        width: 44upx;
 
         image {
-            width: 100%;
+            width: 44upx;
         }
     }
 

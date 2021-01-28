@@ -1,7 +1,7 @@
 import Fly from 'flyio/dist/npm/wx'
 import store from '../store/index.js'
 const API_URL = "https://bf0.trunshare.com/bf0/";
-// const API_URL = "http://192.168.1.72:9009/bf0/";
+// const API_URL = "http://115.29.210.166:9009/bf0/";
 let fly = new Fly(),
     tokenFly = new Fly();
 fly.config = tokenFly.config = {
@@ -18,9 +18,7 @@ const getToken = (request) => {
             success: login => {
                 let { code } = login;
                 tokenFly.post('/login/getOpenId', { code }).then(token_res => {
-                    uni.hideLoading()
                     let { data, code, message } = token_res.data || {};
-                    request ? fly.unlock() : null
                     code != 200 && message ? uni.showToast({
                         title: message,
                         icon: 'none'
@@ -34,7 +32,7 @@ const getToken = (request) => {
                         resolve(request)
                     }
 
-                }).catch(error => {
+                }).finally(() => {
                     uni.hideLoading()
                     request ? fly.unlock() : null
                 })
